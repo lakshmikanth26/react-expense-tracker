@@ -145,19 +145,6 @@ export async function listTransactionAmountsSince(
   return data as Pick<Transaction, 'type' | 'amount' | 'transaction_date' | 'category_id' | 'member_id'>[]
 }
 
-/** Minimal fields only, no date floor — the family's all-time totals for the Home page summary. */
-export async function listAllTransactionAmounts(
-  familyId: string
-): Promise<Pick<Transaction, 'type' | 'amount'>[]> {
-  const { data, error } = await supabase
-    .from('transactions')
-    .select('type, amount')
-    .eq('family_id', familyId)
-    .eq('is_deleted', false)
-  if (error) throw error
-  return data as Pick<Transaction, 'type' | 'amount'>[]
-}
-
 export async function getTransaction(id: string): Promise<TransactionWithRelations> {
   const { data, error } = await supabase.from('transactions').select(RELATIONS_SELECT).eq('id', id).single()
   if (error) throw error

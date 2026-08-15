@@ -11,9 +11,10 @@ import { TransactionList } from '@/components/transactions/TransactionList'
 import { InsightsCard } from '@/components/dashboard/InsightsCard'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { EmptyState } from '@/components/common/EmptyState'
-import { GoalCard } from '@/components/goals/GoalCard'
+import { GoalsChart } from '@/components/dashboard/GoalsChart'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Target } from 'lucide-react'
-import { useMonthTransactions, useAllTimeTransactionAmounts } from '@/hooks/useDashboard'
+import { useMonthTransactions, useAllTimeSavingsTransactions } from '@/hooks/useDashboard'
 import { useDeleteTransaction, useDuplicateTransaction } from '@/hooks/useTransactions'
 import { useSavingsGoals } from '@/hooks/useGoals'
 import { useBudgets } from '@/hooks/useBudgets'
@@ -33,7 +34,7 @@ export default function Dashboard() {
   const { transactions, isLoading } = useMonthTransactions(monthKey)
   const { transactions: previousTransactions } = useMonthTransactions(previousMonthKey)
   const { budgets } = useBudgets(monthKey)
-  const { transactions: allTimeTransactions } = useAllTimeTransactionAmounts()
+  const { transactions: allTimeSavingsTransactions } = useAllTimeSavingsTransactions()
   const { goals, isLoading: goalsLoading } = useSavingsGoals()
 
   const duplicateMutation = useDuplicateTransaction()
@@ -47,7 +48,7 @@ export default function Dashboard() {
   const summary = computeSummary(transactions)
   const previousSummary = computeSummary(previousTransactions)
   const comparison = compareSummaries(summary, previousSummary)
-  const totalSummary = computeSummary(allTimeTransactions)
+  const totalSavings = allTimeSavingsTransactions.reduce((sum, t) => sum + Number(t.amount), 0)
 
   const expenseCategoryTotals = computeCategoryTotals(transactions.filter((t) => t.type === 'expense'))
   const largestCategory = expenseCategoryTotals[0]
@@ -80,38 +81,53 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h2 className="mb-2 text-sm font-semibold">Total Summary</h2>
-        <div className="grid grid-cols-2 gap-3">
-          <StatCard label="Total Income" value={formatCurrency(totalSummary.income)} tone="income" />
-          <StatCard label="Total Expenses" value={formatCurrency(totalSummary.expense)} tone="expense" />
-          <StatCard label="Total Savings" value={formatCurrency(totalSummary.savings)} />
-          <StatCard label="Total Leftover" value={formatCurrency(totalSummary.leftover)} />
-        </div>
-      </div>
+      <Accordion type="multiple" defaultValue={['savings', 'goals']} className="space-y-3">
+        <AccordionItem value="savings">
+          <AccordionTrigger>Total Savings</AccordionTrigger>
+          <AccordionContent className="space-y-4">
+            <StatCard label="Total Savings" value={formatCurrency(totalSavings)} />
+            <CategoryBreakdownChart
+              transactions={allTimeSavingsTransactions}
+              type="savings"
+              onCategoryClick={(categoryId) => navigate(categoryId ? `/transactions?category=${categoryId}` : '/transactions')}
+            />
+          </AccordionContent>
+        </AccordionItem>
 
-      <div>
-        <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-sm font-semibold">Savings Goals</h2>
-          <button
-            className="text-xs font-medium text-primary outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-            onClick={() => navigate('/goals')}
-          >
-            See all
-          </button>
-        </div>
-        {goalsLoading ? (
-          <p className="py-4 text-center text-sm text-muted-foreground">Loading…</p>
-        ) : goals.length === 0 ? (
-          <EmptyState icon={Target} title="No savings goals yet" description="Create one from the Goals tab." className="py-6" />
-        ) : (
-          <div className="space-y-3">
-            {goals.slice(0, 3).map((goal) => (
-              <GoalCard key={goal.id} goal={goal} onEdit={() => navigate('/goals')} onDelete={() => navigate('/goals')} />
-            ))}
-          </div>
-        )}
-      </div>
+        <AccordionItem value="goals">
+          <AccordionTrigger>
+            <span className="flex w-full items-center justify-between pr-2">
+              Savings Goals
+              <span
+                role="link"
+                tabIndex={0}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  navigate('/goals')
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.stopPropagation()
+                    navigate('/goals')
+                  }
+                }}
+                className="text-xs font-medium text-primary outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+              >
+                See all
+              </span>
+            </span>
+          </AccordionTrigger>
+          <AccordionContent>
+            {goalsLoading ? (
+              <p className="py-4 text-center text-sm text-muted-foreground">Loading…</p>
+            ) : goals.length === 0 ? (
+              <EmptyState icon={Target} title="No savings goals yet" description="Create one from the Goals tab." className="py-6" />
+            ) : (
+              <GoalsChart goals={goals} />
+            )}
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
 
       <MonthSelector monthKey={monthKey} onChange={setMonthKey} />
 
