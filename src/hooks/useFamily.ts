@@ -1,13 +1,12 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from './useAuth'
 import { getMyFamilyMembership } from '@/services/family'
-
-export const familyQueryKey = (userId: string | undefined) => ['my-family', userId] as const
+import { queryKeys } from '@/lib/queryKeys'
 
 export function useFamily() {
   const { user } = useAuth()
   const query = useQuery({
-    queryKey: familyQueryKey(user?.id),
+    queryKey: queryKeys.family(user?.id),
     queryFn: () => getMyFamilyMembership(user!.id),
     enabled: !!user,
   })
@@ -24,5 +23,5 @@ export function useFamily() {
 export function useInvalidateFamily() {
   const { user } = useAuth()
   const queryClient = useQueryClient()
-  return () => queryClient.invalidateQueries({ queryKey: familyQueryKey(user?.id) })
+  return () => queryClient.invalidateQueries({ queryKey: queryKeys.family(user?.id) })
 }
