@@ -43,6 +43,10 @@ function sendMessage(chatId: number, text: string) {
   })
 }
 
+function formatMoney(amount: number): string {
+  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount)
+}
+
 function parseAmount(raw: string): number | null {
   const cleaned = raw.trim().replace(/^(rs\.?|inr|₹)\s*/i, '').replace(/,/g, '')
   const match = cleaned.match(/^([\d.]+)\s*(k|l|lakh|cr|crore|m)?$/i)
@@ -231,13 +235,79 @@ async function sendHelp(chatId: number) {
       '`/expense <amount> - <category> - [member] - [date]`\n' +
       '`/income <amount> - <category> - [member] - [date]`\n' +
       '`/savings <amount> - <category> - [member] - [date] - [goal]`\n' +
-      '`/link <code>` — connect this Telegram account to a family member\n\n' +
+      '`/link <code>` — connect this Telegram account to a family member\n' +
+      '`/summary` — total savings, by category, and goal progress in one message\n\n' +
       'Separate fields with " - " or a comma — mix freely. Anything after amount + category is optional and ' +
       'order-independent — I figure out which bit is a date, a member, or a goal. Dates can be `today`, ' +
       '`yesterday`, `2026-07-01`, `01/07/2026`, or `01-jul-26`. You can also skip the command and just type ' +
       'e.g. `Expense - 500 - Food - today`.\n\n' +
       'Send a command with no details (e.g. just `/expense`) to see your own categories.',
   )
+}
+
+interface SavingsTxnRow {
+  amount: string
+  category_id: string | null
+  categories: { name: string; icon: string | null } | null
+}
+
+/** One clean message: total savings, the breakdown by category, and every goal's progress. */
+async function handleSummary(chatId: number) {
+  const member = await getLinkedMember(chatId)
+  if (!member) {
+    await sendMessage(chatId, NOT_LINKED_MESSAGE)
+    return
+  }
+
+  const [{ data: savingsTxns }, { data: goals }] = await Promise.all([
+    supabase
+      .from('transactions')
+      .select('amount, category_id, categories(name, icon)')
+      .eq('family_id', member.family_id)
+      .eq('type', 'savings')
+      .eq('is_deleted', false),
+    supabase
+      .from('savings_goals')
+      .select('name, icon, target_amount, current_amount')
+      .eq('family_id', member.family_id)
+      .order('created_at', { ascending: true }),
+  ])
+
+  const rows = (savingsTxns ?? []) as unknown as SavingsTxnRow[]
+  const totalSavings = rows.reduce((sum, t) => sum + Number(t.amount), 0)
+
+  const byCategory = new Map<string, { name: string; icon: string; amount: number }>()
+  for (const t of rows) {
+    const key = t.category_id ?? 'uncategorized'
+    const entry = byCategory.get(key)
+    if (entry) {
+      entry.amount += Number(t.amount)
+    } else {
+      byCategory.set(key, { name: t.categories?.name ?? 'Uncategorized', icon: t.categories?.icon ?? '📋', amount: Number(t.amount) })
+    }
+  }
+  const categoryLines = Array.from(byCategory.values())
+    .sort((a, b) => b.amount - a.amount)
+    .map((c) => `${c.icon} ${c.name}: *${formatMoney(c.amount)}*`)
+    .join('\n')
+
+  const goalLines = (goals ?? [])
+    .map((g) => {
+      const target = Number(g.target_amount)
+      const current = Number(g.current_amount)
+      const complete = target > 0 && current >= target
+      const progress = target > 0 ? `${formatMoney(current)} of ${formatMoney(target)}` : formatMoney(current)
+      return `${g.icon ?? '🎯'} ${g.name}: ${progress}${complete ? ' ✅' : ''}`
+    })
+    .join('\n')
+
+  const message =
+    '📊 *Savings Summary*\n\n' +
+    `💰 Total Savings: *${formatMoney(totalSavings)}*\n\n` +
+    `*By Category*\n${categoryLines || 'No savings logged yet.'}\n\n` +
+    `*Goals*\n${goalLines || 'No savings goals yet — add one in the app.'}`
+
+  await sendMessage(chatId, message)
 }
 
 async function recordTransaction(chatId: number, type: 'expense' | 'income' | 'savings', parts: string[], rawText: string) {
@@ -387,6 +457,8 @@ Deno.serve(async (req) => {
         await handleLink(chatId, rest)
       } else if (command === 'help') {
         await sendHelp(chatId)
+      } else if (command === 'summary') {
+        await handleSummary(chatId)
       } else if (TYPE_ALIASES[command]) {
         const type = TYPE_ALIASES[command]
         if (!rest) {

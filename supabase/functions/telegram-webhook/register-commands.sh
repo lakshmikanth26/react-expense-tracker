@@ -14,6 +14,7 @@ curl -sS "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/setMyCommands" \
       {"command": "expense", "description": "Log an expense: /expense 500 - Food"},
       {"command": "income", "description": "Log income: /income 50000 - Salary"},
       {"command": "savings", "description": "Log savings: /savings 5000 - Emergency Fund"},
+      {"command": "summary", "description": "Total savings, by category, and goal progress"},
       {"command": "link", "description": "Link this chat to your family member profile"},
       {"command": "help", "description": "Show commands and format examples"}
     ]
