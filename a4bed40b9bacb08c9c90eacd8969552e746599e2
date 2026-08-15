@@ -1,0 +1,43 @@
+src/components/insurance/InsuranceFormDialog.tsx
+  6d026e634ccd3706 1-148
+src/components/layout/nav-items.ts
+  6d026e634ccd3706 1,22
+src/lib/insurance-icons.ts
+  6d026e634ccd3706 1-17
+src/types/database.ts
+  6d026e634ccd3706 19-20,178-203
+src/App.tsx
+  6d026e634ccd3706 19,48
+src/pages/Insurance.tsx
+  6d026e634ccd3706 1-118
+src/services/insurance.ts
+  6d026e634ccd3706 1-100
+prisma/migrations/20260101000008_insurance/migration.sql
+  6d026e634ccd3706 1-92
+src/components/insurance/InsuranceCard.tsx
+  6d026e634ccd3706 1-131
+src/hooks/useInsurance.ts
+  6d026e634ccd3706 1-80
+prisma/schema.prisma
+  6d026e634ccd3706 30-39,97-98,324-365
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.23",
+  "base_commit_sha": "a4bed40b9bacb08c9c90eacd8969552e746599e2",
+  "prompts": {
+    "6d026e634ccd3706": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "399b09e2-245b-41ea-892b-0f829169fa1c",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Lakshmikanth <lakshmikanth.d@gdn-commerce.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 772,
+      "overriden_lines": 0
+    }
+  }
+}
