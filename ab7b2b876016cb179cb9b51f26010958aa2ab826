@@ -1,0 +1,23 @@
+src/pages/Dashboard.tsx
+  6d026e634ccd3706 21,23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.23",
+  "base_commit_sha": "ab7b2b876016cb179cb9b51f26010958aa2ab826",
+  "prompts": {
+    "6d026e634ccd3706": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "399b09e2-245b-41ea-892b-0f829169fa1c",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Lakshmikanth <lakshmikanth.d@gdn-commerce.com>",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 21,
+      "accepted_lines": 2,
+      "overriden_lines": 0
+    }
+  }
+}
