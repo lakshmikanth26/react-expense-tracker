@@ -1,0 +1,61 @@
+src/lib/loan-calculations.test.ts
+  6d026e634ccd3706 1-49
+src/services/loans.ts
+  6d026e634ccd3706 1-41
+src/services/transactions.ts
+  6d026e634ccd3706 11-12,22,182
+src/pages/Loans.tsx
+  6d026e634ccd3706 1-128
+src/components/recurring/RecurringFormDialog.tsx
+  6d026e634ccd3706 19,24,37,63,79,99,199-205
+src/components/loans/LoanCard.tsx
+  6d026e634ccd3706 1-98
+src/pages/AddTransaction.tsx
+  6d026e634ccd3706 13,21,57,68,86,121,201-207
+src/lib/insights.test.ts
+  6d026e634ccd3706 14,32
+src/services/recurring.ts
+  6d026e634ccd3706 23,85
+src/components/loans/LoanFormDialog.tsx
+  6d026e634ccd3706 1-198
+src/types/database.ts
+  6d026e634ccd3706 95,117,128,183-200
+src/hooks/useTransactions.ts
+  6d026e634ccd3706 44,52
+src/hooks/useLoans.ts
+  6d026e634ccd3706 1-41
+src/App.tsx
+  6d026e634ccd3706 19,49
+src/components/layout/nav-items.ts
+  6d026e634ccd3706 1,22
+src/pages/Recurring.tsx
+  6d026e634ccd3706 39
+src/lib/loan-calculations.ts
+  6d026e634ccd3706 1-60
+src/services/recurring.test.ts
+  6d026e634ccd3706 13
+prisma/migrations/20260101000011_loans/migration.sql
+  6d026e634ccd3706 1-195
+src/components/transactions/LoanSelector.tsx
+  6d026e634ccd3706 1-67
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.23",
+  "base_commit_sha": "5b316d7a98efa21fe931911798f525306a10c4b1",
+  "prompts": {
+    "6d026e634ccd3706": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "399b09e2-245b-41ea-892b-0f829169fa1c",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Lakshmikanth <lakshmikanth.d@gdn-commerce.com>",
+      "messages": [],
+      "total_additions": 943,
+      "total_deletions": 6,
+      "accepted_lines": 940,
+      "overriden_lines": 0
+    }
+  }
+}
