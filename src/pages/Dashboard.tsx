@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { MonthSelector } from '@/components/dashboard/MonthSelector'
 import { StatCard } from '@/components/dashboard/StatCard'
 import { QuickActions } from '@/components/dashboard/QuickActions'
-import { TrendChart } from '@/components/dashboard/TrendChart'
 import { CategoryBreakdownChart } from '@/components/dashboard/CategoryBreakdownChart'
 import { SavingsByCategoryChart } from '@/components/dashboard/SavingsByCategoryChart'
 import { TransactionList } from '@/components/transactions/TransactionList'
@@ -132,7 +131,6 @@ export default function Dashboard() {
 
       {!isLoading && transactions.length > 0 && <InsightsCard insights={insights} />}
 
-      <TrendChart monthKey={monthKey} />
       <SavingsByCategoryChart
         transactions={transactions}
         onCategoryClick={(categoryId) => navigate(categoryId ? `/transactions?category=${categoryId}` : '/transactions')}
@@ -151,8 +149,16 @@ export default function Dashboard() {
               <span className="font-medium tabular-nums">{transactions.length}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Leftover (after spending &amp; saving)</span>
-              <span className="font-medium tabular-nums">{formatCurrency(summary.leftover)}</span>
+              <span className="text-muted-foreground">Income</span>
+              <span className="font-medium tabular-nums">{formatCurrency(summary.income)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Expenses</span>
+              <span className="font-medium tabular-nums">{formatCurrency(summary.expense)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Savings</span>
+              <span className="font-medium tabular-nums">{formatCurrency(summary.savings)}</span>
             </div>
             {largestCategory && (
               <div className="flex justify-between">
