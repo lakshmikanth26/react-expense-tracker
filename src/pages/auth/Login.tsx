@@ -100,7 +100,7 @@ export default function Login() {
                       <button
                         type="button"
                         onClick={handleForgotPassword}
-                        className="text-xs text-muted-foreground underline-offset-2 hover:underline"
+                        className="text-xs text-muted-foreground underline-offset-2 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
                       >
                         Forgot password?
                       </button>
@@ -122,7 +122,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setMode(mode === 'sign-in' ? 'sign-up' : 'sign-in')}
-                  className="w-full text-center text-sm text-muted-foreground underline-offset-2 hover:underline"
+                  className="w-full text-center text-sm text-muted-foreground underline-offset-2 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
                 >
                   {mode === 'sign-in' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
                 </button>

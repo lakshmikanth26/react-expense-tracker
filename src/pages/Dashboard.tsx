@@ -132,7 +132,10 @@ export default function Dashboard() {
       <div>
         <div className="mb-2 flex items-center justify-between">
           <h2 className="text-sm font-semibold">Recent Transactions</h2>
-          <button className="text-xs font-medium text-primary" onClick={() => navigate('/transactions')}>
+          <button
+            className="text-xs font-medium text-primary outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+            onClick={() => navigate('/transactions')}
+          >
             See all
           </button>
         </div>

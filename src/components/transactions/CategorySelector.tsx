@@ -23,7 +23,7 @@ export function CategorySelector({ categories, value, onChange, recentCategoryId
       <SheetTrigger asChild>
         <button
           type="button"
-          className="flex w-full items-center justify-between rounded-lg border px-4 py-3 text-left"
+          className="flex w-full items-center justify-between rounded-lg border px-4 py-3 text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
         >
           <span className="flex items-center gap-2">
             <span className="text-xl leading-none">{selected?.icon ?? '📋'}</span>
@@ -51,7 +51,7 @@ export function CategorySelector({ categories, value, onChange, recentCategoryId
                   onChange(category.id)
                   setOpen(false)
                 }}
-                className="flex flex-col items-center gap-1 rounded-lg border p-3 text-center transition-colors data-[selected=true]:border-primary data-[selected=true]:bg-primary/5"
+                className="flex flex-col items-center gap-1 rounded-lg border p-3 text-center outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 data-[selected=true]:border-primary data-[selected=true]:bg-primary/5"
                 data-selected={category.id === value}
               >
                 <span className="text-2xl leading-none">{category.icon ?? '📋'}</span>

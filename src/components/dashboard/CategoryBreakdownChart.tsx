@@ -71,7 +71,7 @@ export function CategoryBreakdownChart({ transactions, onCategoryClick }: Catego
               type="button"
               onClick={() => onCategoryClick?.(entry.categoryId)}
               disabled={!onCategoryClick}
-              className="flex w-full items-center justify-between rounded text-sm disabled:cursor-default"
+              className="flex w-full items-center justify-between rounded text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-default"
             >
               <span className="flex min-w-0 items-center gap-2">
                 <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: entry.color }} />

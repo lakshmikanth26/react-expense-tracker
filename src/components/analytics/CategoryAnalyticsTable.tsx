@@ -65,7 +65,7 @@ export function CategoryAnalyticsTable({ transactions, previousTransactions, cat
               onClick={() =>
                 hasSubcategories && total.categoryId ? toggle(total.categoryId) : navigate(`/transactions?category=${total.categoryId ?? ''}`)
               }
-              className="flex w-full items-center gap-3 py-3 text-left"
+              className="flex w-full items-center gap-3 py-3 text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
             >
               {hasSubcategories ? (
                 isOpen ? (
@@ -101,7 +101,7 @@ export function CategoryAnalyticsTable({ transactions, previousTransactions, cat
                       key={sub.id}
                       type="button"
                       onClick={() => navigate(`/transactions?category=${sub.id}`)}
-                      className="flex w-full items-center gap-2 py-1.5 text-left text-sm"
+                      className="flex w-full items-center gap-2 py-1.5 text-left text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                     >
                       <span>{sub.icon}</span>
                       <span className="min-w-0 flex-1 truncate text-muted-foreground">{sub.name}</span>

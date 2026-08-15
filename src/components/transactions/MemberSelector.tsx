@@ -20,7 +20,7 @@ export function MemberSelector({ members, value, onChange }: MemberSelectorProps
       <SheetTrigger asChild>
         <button
           type="button"
-          className="flex w-full items-center justify-between rounded-lg border px-4 py-3 text-left"
+          className="flex w-full items-center justify-between rounded-lg border px-4 py-3 text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
         >
           <span className="flex items-center gap-2">
             <Avatar className="size-6">
@@ -44,7 +44,7 @@ export function MemberSelector({ members, value, onChange }: MemberSelectorProps
               onChange(null)
               setOpen(false)
             }}
-            className="flex items-center gap-3 rounded-lg border p-3 text-left transition-colors data-[selected=true]:border-primary data-[selected=true]:bg-primary/5"
+            className="flex items-center gap-3 rounded-lg border p-3 text-left outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 data-[selected=true]:border-primary data-[selected=true]:bg-primary/5"
             data-selected={value === null}
           >
             <Avatar className="size-7">
@@ -62,7 +62,7 @@ export function MemberSelector({ members, value, onChange }: MemberSelectorProps
                 onChange(member.id)
                 setOpen(false)
               }}
-              className="flex items-center gap-3 rounded-lg border p-3 text-left transition-colors data-[selected=true]:border-primary data-[selected=true]:bg-primary/5"
+              className="flex items-center gap-3 rounded-lg border p-3 text-left outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 data-[selected=true]:border-primary data-[selected=true]:bg-primary/5"
               data-selected={member.id === value}
             >
               <Avatar className="size-7">

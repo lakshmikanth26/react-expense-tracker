@@ -203,7 +203,7 @@ export default function AddTransaction() {
                   if (t.account_id) setAccountId(t.account_id)
                   if (t.member_id !== undefined) setMemberId(t.member_id)
                 }}
-                className="flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium"
+                className="flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
               >
                 <span>{t.category?.icon ?? '📋'}</span>
                 {t.category?.name ?? t.description ?? 'Transaction'}

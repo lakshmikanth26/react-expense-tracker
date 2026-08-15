@@ -15,7 +15,7 @@ function NavButton({ to, label, Icon }: { to: string; label: string; Icon: (type
       end={to === '/'}
       className={({ isActive }) =>
         cn(
-          'flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-medium transition-colors',
+          'flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-medium outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50',
           isActive ? 'text-primary' : 'text-muted-foreground'
         )
       }
@@ -45,7 +45,7 @@ export function BottomNav() {
               <button
                 type="button"
                 aria-label="Add transaction"
-                className="-mt-6 flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform active:scale-95"
+                className="-mt-6 flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform outline-none active:scale-95 focus-visible:ring-3 focus-visible:ring-ring/50"
               >
                 <Plus className="size-7" />
               </button>
@@ -59,7 +59,7 @@ export function BottomNav() {
           <SheetTrigger asChild>
             <button
               type="button"
-              className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-medium text-muted-foreground"
+              className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-medium text-muted-foreground outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
             >
               <MoreHorizontal className="size-5" />
               More

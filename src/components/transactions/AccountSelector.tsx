@@ -22,7 +22,7 @@ export function AccountSelector({ label, accounts, value, onChange, excludeId }:
       <SheetTrigger asChild>
         <button
           type="button"
-          className="flex w-full items-center justify-between rounded-lg border px-4 py-3 text-left"
+          className="flex w-full items-center justify-between rounded-lg border px-4 py-3 text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
         >
           <span className="flex items-center gap-2">
             <span className="text-xl leading-none">{selected ? accountTypeIcons[selected.type] : '💳'}</span>
@@ -44,7 +44,7 @@ export function AccountSelector({ label, accounts, value, onChange, excludeId }:
                 onChange(account.id)
                 setOpen(false)
               }}
-              className="flex items-center gap-3 rounded-lg border p-3 text-left transition-colors data-[selected=true]:border-primary data-[selected=true]:bg-primary/5"
+              className="flex items-center gap-3 rounded-lg border p-3 text-left outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 data-[selected=true]:border-primary data-[selected=true]:bg-primary/5"
               data-selected={account.id === value}
             >
               <span className="text-xl leading-none">{accountTypeIcons[account.type]}</span>

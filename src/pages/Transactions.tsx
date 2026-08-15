@@ -115,7 +115,7 @@ export default function Transactions() {
             <button
               type="button"
               onClick={() => setSearch('')}
-              className="absolute top-1/2 right-2.5 -translate-y-1/2 text-muted-foreground"
+              className="absolute top-1/2 right-2.5 -translate-y-1/2 text-muted-foreground outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
               aria-label="Clear search"
             >
               <X className="size-4" />
@@ -132,7 +132,7 @@ export default function Transactions() {
             setSearch('')
             setOffset(0)
           }}
-          className="mb-3 text-xs font-medium text-primary"
+          className="mb-3 text-xs font-medium text-primary outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
         >
           Clear all filters
         </button>
