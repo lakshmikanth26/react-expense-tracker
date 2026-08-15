@@ -1,0 +1,27 @@
+src/lib/calculations.test.ts
+  6d026e634ccd3706 5,8,10,94-135
+src/lib/csv.test.ts
+  6d026e634ccd3706 1-24
+src/lib/formatters.test.ts
+  6d026e634ccd3706 1-36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.23",
+  "base_commit_sha": "d6e92fd5982ae759d1ce43d6a342ebbfff2eb144",
+  "prompts": {
+    "6d026e634ccd3706": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "399b09e2-245b-41ea-892b-0f829169fa1c",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Lakshmikanth <lakshmikanth.d@gdn-commerce.com>",
+      "messages": [],
+      "total_additions": 106,
+      "total_deletions": 1,
+      "accepted_lines": 105,
+      "overriden_lines": 0
+    }
+  }
+}
