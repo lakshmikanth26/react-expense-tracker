@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
+import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 
 export type OAuthProvider = 'google' | 'azure'
@@ -24,6 +25,7 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -80,9 +82,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       async signOut() {
         await supabase.auth.signOut()
+        // Otherwise a later sign-in as the same user (e.g. right after deleting a
+        // family) can briefly serve stale cached data for up to `staleTime`.
+        queryClient.clear()
       },
     }),
-    [session, loading]
+    [session, loading, queryClient]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
