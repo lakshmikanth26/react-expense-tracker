@@ -1,0 +1,25 @@
+supabase/functions/telegram-webhook/index.ts
+  6d026e634ccd3706 46-49,238-239,248-310,460-461
+supabase/functions/telegram-webhook/register-commands.sh
+  6d026e634ccd3706 17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.23",
+  "base_commit_sha": "fdf0667428070b4208d91572d1e5760e6fd3cccf",
+  "prompts": {
+    "6d026e634ccd3706": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "399b09e2-245b-41ea-892b-0f829169fa1c",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Lakshmikanth <lakshmikanth.d@gdn-commerce.com>",
+      "messages": [],
+      "total_additions": 113,
+      "total_deletions": 4,
+      "accepted_lines": 113,
+      "overriden_lines": 0
+    }
+  }
+}
