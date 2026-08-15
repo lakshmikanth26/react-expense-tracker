@@ -10,8 +10,12 @@ import { CategoryBreakdownChart } from '@/components/dashboard/CategoryBreakdown
 import { TransactionList } from '@/components/transactions/TransactionList'
 import { InsightsCard } from '@/components/dashboard/InsightsCard'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
-import { useMonthTransactions } from '@/hooks/useDashboard'
+import { EmptyState } from '@/components/common/EmptyState'
+import { GoalCard } from '@/components/goals/GoalCard'
+import { Target } from 'lucide-react'
+import { useMonthTransactions, useAllTimeTransactionAmounts } from '@/hooks/useDashboard'
 import { useDeleteTransaction, useDuplicateTransaction } from '@/hooks/useTransactions'
+import { useSavingsGoals } from '@/hooks/useGoals'
 import { useBudgets } from '@/hooks/useBudgets'
 import { computeCategoryTotals, computeSummary, compareSummaries } from '@/lib/calculations'
 import { addMonths, currentMonthKey, formatMonthLabel } from '@/lib/dates'
@@ -29,6 +33,8 @@ export default function Dashboard() {
   const { transactions, isLoading } = useMonthTransactions(monthKey)
   const { transactions: previousTransactions } = useMonthTransactions(previousMonthKey)
   const { budgets } = useBudgets(monthKey)
+  const { transactions: allTimeTransactions } = useAllTimeTransactionAmounts()
+  const { goals, isLoading: goalsLoading } = useSavingsGoals()
 
   const duplicateMutation = useDuplicateTransaction()
   const deleteMutation = useDeleteTransaction()
@@ -41,6 +47,7 @@ export default function Dashboard() {
   const summary = computeSummary(transactions)
   const previousSummary = computeSummary(previousTransactions)
   const comparison = compareSummaries(summary, previousSummary)
+  const totalSummary = computeSummary(allTimeTransactions)
 
   const expenseCategoryTotals = computeCategoryTotals(transactions.filter((t) => t.type === 'expense'))
   const largestCategory = expenseCategoryTotals[0]
@@ -73,6 +80,39 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-5">
+      <div>
+        <h2 className="mb-2 text-sm font-semibold">Total Summary</h2>
+        <div className="grid grid-cols-2 gap-3">
+          <StatCard label="Total Income" value={formatCurrency(totalSummary.income)} tone="income" />
+          <StatCard label="Total Expenses" value={formatCurrency(totalSummary.expense)} tone="expense" />
+          <StatCard label="Total Savings" value={formatCurrency(totalSummary.savings)} />
+          <StatCard label="Total Leftover" value={formatCurrency(totalSummary.leftover)} />
+        </div>
+      </div>
+
+      <div>
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="text-sm font-semibold">Savings Goals</h2>
+          <button
+            className="text-xs font-medium text-primary outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+            onClick={() => navigate('/goals')}
+          >
+            See all
+          </button>
+        </div>
+        {goalsLoading ? (
+          <p className="py-4 text-center text-sm text-muted-foreground">Loading…</p>
+        ) : goals.length === 0 ? (
+          <EmptyState icon={Target} title="No savings goals yet" description="Create one from the Goals tab." className="py-6" />
+        ) : (
+          <div className="space-y-3">
+            {goals.slice(0, 3).map((goal) => (
+              <GoalCard key={goal.id} goal={goal} onEdit={() => navigate('/goals')} onDelete={() => navigate('/goals')} />
+            ))}
+          </div>
+        )}
+      </div>
+
       <MonthSelector monthKey={monthKey} onChange={setMonthKey} />
 
       <div className="grid grid-cols-2 gap-3">

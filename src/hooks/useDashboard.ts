@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useFamily } from './useFamily'
-import { listTransactionAmountsSince, listTransactionsForRange } from '@/services/transactions'
+import { listAllTransactionAmounts, listTransactionAmountsSince, listTransactionsForRange } from '@/services/transactions'
 import { addMonths, endOfMonthKeyExclusive, startOfMonthKey } from '@/lib/dates'
 
 export function useMonthTransactions(monthKey: string) {
@@ -11,6 +11,18 @@ export function useMonthTransactions(monthKey: string) {
   const query = useQuery({
     queryKey: ['transactions', 'month', family?.id, start],
     queryFn: () => listTransactionsForRange(family!.id, start, end),
+    enabled: !!family,
+  })
+
+  return { transactions: query.data ?? [], isLoading: query.isLoading, error: query.error }
+}
+
+/** All-time totals across every transaction the family has ever logged, for the Home page summary. */
+export function useAllTimeTransactionAmounts() {
+  const { family } = useFamily()
+  const query = useQuery({
+    queryKey: ['transactions', 'all-time', family?.id],
+    queryFn: () => listAllTransactionAmounts(family!.id),
     enabled: !!family,
   })
 
