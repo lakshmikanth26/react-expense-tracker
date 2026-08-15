@@ -94,6 +94,15 @@ export async function generateDueRecurringTransactions(familyId: string): Promis
       iterations += 1
     }
 
+    const stillDue = nextRunDate <= today && (!recurring.end_date || nextRunDate <= recurring.end_date)
+    if (iterations >= MAX_CATCH_UP_OCCURRENCES && stillDue) {
+      console.warn(
+        `generateDueRecurringTransactions: "${recurring.description ?? recurring.id}" (${recurring.id}) hit the ` +
+          `${MAX_CATCH_UP_OCCURRENCES}-occurrence catch-up cap and is still behind schedule (next_run_date=${nextRunDate}). ` +
+          `It will keep catching up on subsequent runs instead of skipping ahead.`
+      )
+    }
+
     await updateRecurringTransaction(recurring.id, { next_run_date: nextRunDate, last_generated_date: today })
   }
 
