@@ -7,7 +7,8 @@ const RELATIONS_SELECT = `
   category:categories(id, name, icon, color, type),
   account:accounts!transactions_account_id_fkey(id, name, type),
   transfer_to_account:accounts!transactions_transfer_to_account_id_fkey(id, name, type),
-  member:family_members(id, name, avatar_url)
+  member:family_members(id, name, avatar_url),
+  goal:savings_goals(id, name, icon)
 `
 
 export interface TransactionInput {
@@ -16,6 +17,7 @@ export interface TransactionInput {
   category_id: string | null
   account_id: string | null
   transfer_to_account_id: string | null
+  goal_id: string | null
   type: Transaction['type']
   amount: number
   transaction_date: string
@@ -174,6 +176,7 @@ export async function duplicateTransaction(source: Transaction): Promise<Transac
     category_id: source.category_id,
     account_id: source.account_id,
     transfer_to_account_id: source.transfer_to_account_id,
+    goal_id: source.goal_id,
     type: source.type,
     amount: Number(source.amount),
     transaction_date: todayKey(),

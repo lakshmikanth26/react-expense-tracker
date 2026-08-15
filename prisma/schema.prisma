@@ -164,6 +164,7 @@ model Transaction {
   categoryId             String?         @map("category_id") @db.Uuid
   accountId              String?         @map("account_id") @db.Uuid
   transferToAccountId    String?         @map("transfer_to_account_id") @db.Uuid
+  goalId                 String?         @map("goal_id") @db.Uuid
   type                   TransactionType
   amount                 Decimal         @db.Decimal(14, 2)
   transactionDate        DateTime        @map("transaction_date") @db.Date
@@ -182,12 +183,14 @@ model Transaction {
   category             Category?             @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   account              Account?              @relation("AccountTransactions", fields: [accountId], references: [id], onDelete: SetNull)
   transferToAccount    Account?              @relation("TransferToAccount", fields: [transferToAccountId], references: [id], onDelete: SetNull)
+  goal                 SavingsGoal?          @relation(fields: [goalId], references: [id], onDelete: SetNull)
   recurringTransaction RecurringTransaction? @relation(fields: [recurringTransactionId], references: [id], onDelete: SetNull)
 
   @@index([familyId])
   @@index([transactionDate])
   @@index([categoryId])
   @@index([memberId])
+  @@index([goalId])
   @@index([accountId])
   @@index([type])
   @@index([familyId, transactionDate])
@@ -257,7 +260,8 @@ model SavingsGoal {
   createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  family       Family        @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
 
   @@index([familyId])
   @@map("savings_goals")

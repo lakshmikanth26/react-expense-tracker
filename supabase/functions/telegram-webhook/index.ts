@@ -119,6 +119,21 @@ function findCategory(token: string, categories: CategoryRow[]): CategoryRow | n
   )
 }
 
+interface GoalRow {
+  id: string
+  name: string
+}
+
+function findGoal(token: string, goals: GoalRow[]): GoalRow | null {
+  const t = token.trim().toLowerCase()
+  return (
+    goals.find((g) => g.name.toLowerCase() === t) ??
+    goals.find((g) => g.name.toLowerCase().startsWith(t)) ??
+    goals.find((g) => g.name.toLowerCase().includes(t)) ??
+    null
+  )
+}
+
 async function handleLink(chatId: number, code: string) {
   const trimmed = code.trim().toUpperCase()
   const { data: linkCode } = await supabase
@@ -154,8 +169,10 @@ async function handleLink(chatId: number, code: string) {
   await sendMessage(
     chatId,
     `You're linked, ${member?.name ?? 'there'}! Send messages like:\n\n` +
-      '`Expense - 500 - Food - today`\n`Income - 50000 - Salary`\n`Savings - 5000 - Emergency Fund`\n\n' +
-      'Format: *Type - Amount - Category - [Member] - [Date]* (member and date are optional).',
+      '`Expense - 500 - Food - today`\n`Income - 50000 - Salary`\n`Savings - 5000 - Emergency Fund - my goal`\n\n' +
+      'Format: *Type - Amount - Category - [Member] - [Date] - [Goal]* — anything after Category is optional and ' +
+      'order-independent (I figure out which bit is a date, a member, or a goal). For savings, if a goal shares ' +
+      "the category's name I'll link it automatically.",
   )
 }
 
@@ -173,7 +190,7 @@ async function handleTransactionText(chatId: number, text: string) {
 
   const parts = text.trim().split(/\s+-\s+/).map((p) => p.trim()).filter(Boolean)
   if (parts.length < 3) {
-    await sendMessage(chatId, 'Please use the format: *Type - Amount - Category - [Member] - [Date]*\ne.g. `Expense - 500 - Food - today`')
+    await sendMessage(chatId, 'Please use the format: *Type - Amount - Category - [Member] - [Date] - [Goal]*\ne.g. `Expense - 500 - Food - today`')
     return
   }
 
@@ -191,10 +208,13 @@ async function handleTransactionText(chatId: number, text: string) {
 
   const categoryToken = parts[2]
 
-  const [{ data: categories }, { data: members }, { data: accounts }] = await Promise.all([
+  const [{ data: categories }, { data: members }, { data: accounts }, { data: goals }] = await Promise.all([
     supabase.from('categories').select('id, name').eq('family_id', member.family_id).eq('type', type).eq('is_active', true),
     supabase.from('family_members').select('id, name').eq('family_id', member.family_id).eq('is_active', true),
     supabase.from('accounts').select('id, name').eq('family_id', member.family_id).eq('is_active', true).order('created_at', { ascending: true }),
+    type === 'savings'
+      ? supabase.from('savings_goals').select('id, name').eq('family_id', member.family_id)
+      : Promise.resolve({ data: [] as GoalRow[] }),
   ])
 
   const category = findCategory(categoryToken, categories ?? [])
@@ -204,20 +224,31 @@ async function handleTransactionText(chatId: number, text: string) {
     return
   }
 
+  // Everything after Category is optional and order-independent: classify each
+  // remaining token as the first slot it fits (date, then member, then goal) so
+  // "Emergency Fund - 01 Aug 26 - Archana" and "Archana - 01 Aug 26" both work.
   let taggedMember = member
   let dateToken: string | undefined
-  if (parts[4]) {
-    const matched = findMember(parts[3], members ?? [])
-    taggedMember = matched ?? member
-    dateToken = parts[4]
-  } else if (parts[3]) {
-    const asDate = parseDate(parts[3])
+  let goalMatch: GoalRow | null = null
+  let memberMatched = false
+  for (const token of parts.slice(3)) {
+    const asDate = !dateToken ? parseDate(token) : null
+    const asMember = !memberMatched ? findMember(token, members ?? []) : null
+    const asGoal = type === 'savings' && !goalMatch ? findGoal(token, goals ?? []) : null
+
     if (asDate) {
-      dateToken = parts[3]
-    } else {
-      const matched = findMember(parts[3], members ?? [])
-      if (matched) taggedMember = matched
+      dateToken = token
+    } else if (asMember) {
+      taggedMember = asMember
+      memberMatched = true
+    } else if (asGoal) {
+      goalMatch = asGoal
     }
+  }
+  // For savings, a goal sharing the matched category's name is linked automatically
+  // even with no explicit goal field — most families name the goal and category alike.
+  if (type === 'savings' && !goalMatch) {
+    goalMatch = findGoal(category.name, goals ?? [])
   }
 
   const transactionDate = (dateToken && parseDate(dateToken)) || toDateKey(new Date())
@@ -233,6 +264,7 @@ async function handleTransactionText(chatId: number, text: string) {
     member_id: taggedMember.id,
     category_id: category.id,
     account_id: account.id,
+    goal_id: type === 'savings' ? (goalMatch?.id ?? null) : null,
     type,
     amount,
     transaction_date: transactionDate,
@@ -246,7 +278,9 @@ async function handleTransactionText(chatId: number, text: string) {
 
   await sendMessage(
     chatId,
-    `✅ ${type[0].toUpperCase()}${type.slice(1)} of ${amount} logged under *${category.name}* for ${taggedMember.name} (${account.name}, ${transactionDate}).`,
+    `✅ ${type[0].toUpperCase()}${type.slice(1)} of ${amount} logged under *${category.name}* for ${taggedMember.name} (${account.name}, ${transactionDate})` +
+      (goalMatch ? ` → 🎯 ${goalMatch.name}` : '') +
+      '.',
   )
 }
 

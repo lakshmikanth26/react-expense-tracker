@@ -9,12 +9,14 @@ import { CurrencyInput } from '@/components/transactions/CurrencyInput'
 import { CategorySelector } from '@/components/transactions/CategorySelector'
 import { AccountSelector } from '@/components/transactions/AccountSelector'
 import { MemberSelector } from '@/components/transactions/MemberSelector'
+import { GoalSelector } from '@/components/transactions/GoalSelector'
 import { DateField } from '@/components/transactions/DateField'
 import { FullPageSpinner } from '@/components/common/FullPageSpinner'
 import { useFamily } from '@/hooks/useFamily'
 import { useCategories } from '@/hooks/useCategories'
 import { useAccounts } from '@/hooks/useAccounts'
 import { useMembers } from '@/hooks/useMembers'
+import { useSavingsGoals } from '@/hooks/useGoals'
 import { useCreateTransaction, useUpdateTransaction, useRecentTransactions } from '@/hooks/useTransactions'
 import { getTransaction } from '@/services/transactions'
 import { queryKeys } from '@/lib/queryKeys'
@@ -49,6 +51,7 @@ export default function AddTransaction() {
   const { categories } = useCategories(type === 'transfer' ? undefined : type)
   const { accounts } = useAccounts()
   const { members } = useMembers()
+  const { goals } = useSavingsGoals()
   const { transactions: recent } = useRecentTransactions(5)
   const createMutation = useCreateTransaction()
   const updateMutation = useUpdateTransaction()
@@ -58,6 +61,7 @@ export default function AddTransaction() {
   const [accountId, setAccountId] = useState<string | null>(null)
   const [transferToAccountId, setTransferToAccountId] = useState<string | null>(null)
   const [memberId, setMemberId] = useState<string | null>(null)
+  const [goalId, setGoalId] = useState<string | null>(null)
   const [dateKey, setDateKey] = useState(todayKey())
   const [note, setNote] = useState('')
   const [initialized, setInitialized] = useState(false)
@@ -74,6 +78,7 @@ export default function AddTransaction() {
       setAccountId(t.account_id)
       setTransferToAccountId(t.transfer_to_account_id)
       setMemberId(t.member_id)
+      setGoalId(t.goal_id)
       setDateKey(t.transaction_date)
       setNote(t.description ?? '')
       setInitialized(true)
@@ -107,6 +112,7 @@ export default function AddTransaction() {
       category_id: type === 'transfer' ? null : categoryId,
       account_id: accountId,
       transfer_to_account_id: type === 'transfer' ? transferToAccountId : null,
+      goal_id: type === 'savings' ? goalId : null,
       type,
       amount: Number(amount),
       transaction_date: dateKey,
@@ -178,6 +184,13 @@ export default function AddTransaction() {
           <label className="text-xs font-medium text-muted-foreground">Member</label>
           <MemberSelector members={members} value={memberId} onChange={setMemberId} />
         </div>
+
+        {type === 'savings' && (
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-muted-foreground">Goal</label>
+            <GoalSelector goals={goals} value={goalId} onChange={setGoalId} />
+          </div>
+        )}
 
         <div className="space-y-1.5">
           <label className="text-xs font-medium text-muted-foreground">Date</label>

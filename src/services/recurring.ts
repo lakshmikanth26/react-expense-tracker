@@ -79,6 +79,7 @@ export async function generateDueRecurringTransactions(familyId: string): Promis
         category_id: recurring.category_id,
         account_id: recurring.account_id,
         transfer_to_account_id: recurring.transfer_to_account_id,
+        goal_id: null,
         type: recurring.type,
         amount: Number(recurring.amount),
         transaction_date: nextRunDate,

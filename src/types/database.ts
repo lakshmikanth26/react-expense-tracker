@@ -89,6 +89,7 @@ export interface Transaction {
   category_id: string | null
   account_id: string | null
   transfer_to_account_id: string | null
+  goal_id: string | null
   type: TransactionType
   amount: string
   transaction_date: string
@@ -109,6 +110,7 @@ export interface TransactionWithRelations extends Transaction {
   account: Pick<Account, 'id' | 'name' | 'type'> | null
   transfer_to_account: Pick<Account, 'id' | 'name' | 'type'> | null
   member: Pick<FamilyMember, 'id' | 'name' | 'avatar_url'> | null
+  goal: Pick<SavingsGoal, 'id' | 'name' | 'icon'> | null
 }
 
 export interface RecurringTransaction {
