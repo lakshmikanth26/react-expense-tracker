@@ -10,7 +10,7 @@ The core product principle: **recording an expense should take one tap + an amou
 - **Auth & family onboarding** — email/password or email OTP sign-in; creating an account
   walks you through naming your family and gets 23 expense categories, 6 income categories,
   and 4 default accounts (Bank, Cash, UPI, Credit Card) set up automatically.
-- **Transactions** — add expense/income/transfer in a few taps, with smart defaults
+- **Transactions** — add expense/income/savings in a few taps, with smart defaults
   (last-used category/account/member per type) and a "recent transactions" quick-reuse strip.
   Edit, duplicate, and soft-delete are all supported.
 - **Dashboard** — monthly income/expense/savings summary, month-over-month comparison, a

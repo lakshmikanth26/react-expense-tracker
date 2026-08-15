@@ -133,7 +133,6 @@ export function RecurringFormDialog({ trigger, editing, open, onOpenChange, onSa
                   <SelectItem value="expense">Expense</SelectItem>
                   <SelectItem value="income">Income</SelectItem>
                   <SelectItem value="savings">Savings</SelectItem>
-                  <SelectItem value="transfer">Transfer</SelectItem>
                 </SelectContent>
               </Select>
             </div>
