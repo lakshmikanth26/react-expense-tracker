@@ -70,7 +70,13 @@ export function computeInsights({ transactions, previousTransactions, budgets }:
     insights.push({ icon: '💡', text: `Your largest expense this month was ${label}.` })
   }
 
-  insights.push({ icon: '💡', text: `Your savings rate is ${formatPercent(summary.savingsRate)}.` })
+  insights.push({
+    icon: '💰',
+    text:
+      summary.savings > 0
+        ? `You saved ${formatCurrency(summary.savings)} this month — a ${formatPercent(summary.savingsRate)} savings rate.`
+        : `Your savings rate is ${formatPercent(summary.savingsRate)}.`,
+  })
 
   const spentByCategory = new Map(currentTotals.map((t) => [t.categoryId, t.amount]))
   for (const budget of budgets) {

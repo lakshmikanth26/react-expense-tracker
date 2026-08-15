@@ -28,6 +28,7 @@ import type { TransactionType } from '@/types'
 const typeLabel: Record<TransactionType, string> = {
   expense: 'Expense',
   income: 'Income',
+  savings: 'Savings',
   transfer: 'Transfer',
 }
 

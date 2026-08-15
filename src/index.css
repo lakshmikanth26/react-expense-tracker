@@ -10,6 +10,8 @@
     --color-income-foreground: var(--income-foreground);
     --color-expense: var(--expense);
     --color-expense-foreground: var(--expense-foreground);
+    --color-savings: var(--savings);
+    --color-savings-foreground: var(--savings-foreground);
     --color-warning: var(--warning);
     --color-warning-foreground: var(--warning-foreground);
     --font-heading: var(--font-sans);
@@ -92,6 +94,8 @@
     --income-foreground: oklch(0.985 0 0);
     --expense: oklch(0.6 0.19 25);
     --expense-foreground: oklch(0.985 0 0);
+    --savings: oklch(0.58 0.18 260);
+    --savings-foreground: oklch(0.985 0 0);
     --warning: oklch(0.75 0.16 75);
     --warning-foreground: oklch(0.145 0 0);
 }
@@ -133,6 +137,8 @@
     --income-foreground: oklch(0.145 0 0);
     --expense: oklch(0.7 0.19 25);
     --expense-foreground: oklch(0.145 0 0);
+    --savings: oklch(0.72 0.16 260);
+    --savings-foreground: oklch(0.145 0 0);
     --warning: oklch(0.8 0.17 75);
     --warning-foreground: oklch(0.145 0 0);
 }

@@ -98,6 +98,12 @@ export default function Dashboard() {
       <TrendChart monthKey={monthKey} />
       <CategoryBreakdownChart
         transactions={transactions}
+        type="savings"
+        onCategoryClick={(categoryId) => navigate(categoryId ? `/transactions?category=${categoryId}` : '/transactions')}
+      />
+      <CategoryBreakdownChart
+        transactions={transactions}
+        type="expense"
         onCategoryClick={(categoryId) => navigate(categoryId ? `/transactions?category=${categoryId}` : '/transactions')}
       />
 
@@ -108,6 +114,10 @@ export default function Dashboard() {
             <div className="flex justify-between">
               <span className="text-muted-foreground">Transactions</span>
               <span className="font-medium tabular-nums">{transactions.length}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Leftover (after spending &amp; saving)</span>
+              <span className="font-medium tabular-nums">{formatCurrency(summary.leftover)}</span>
             </div>
             {largestCategory && (
               <div className="flex justify-between">

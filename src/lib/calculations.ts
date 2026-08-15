@@ -21,36 +21,45 @@ interface MoneyTxn {
 }
 
 /**
- * Income - Expenses, transfers excluded (they move money between accounts, they
- * are neither income nor expense). See §50 of the product spec.
+ * Income, expense, and savings are each summed from their own transaction type —
+ * transfers are excluded from all three (they move money between accounts, they are
+ * neither income, spending, nor saving). `savings` is money the family explicitly set
+ * aside (Fixed Deposit, Mutual Funds, Stocks, ...), not a derived leftover: `leftover`
+ * is what's left after both spending and explicit saving are accounted for. See §50 of
+ * the product spec.
  */
 export function computeSummary(transactions: MoneyTxn[]): {
   income: number
   expense: number
   savings: number
+  leftover: number
   savingsRate: number
 } {
   let incomePaise = 0
   let expensePaise = 0
+  let savingsPaise = 0
 
   for (const t of transactions) {
     const paise = toPaise(t.amount)
     if (t.type === 'income') incomePaise += paise
     else if (t.type === 'expense') expensePaise += paise
+    else if (t.type === 'savings') savingsPaise += paise
   }
 
   const income = fromPaise(incomePaise)
   const expense = fromPaise(expensePaise)
-  const savings = fromPaise(incomePaise - expensePaise)
-  const savingsRate = incomePaise > 0 ? (savings / income) * 100 : 0
+  const savings = fromPaise(savingsPaise)
+  const leftover = fromPaise(incomePaise - expensePaise - savingsPaise)
+  const savingsRate = incomePaise > 0 ? (savingsPaise / incomePaise) * 100 : 0
 
-  return { income, expense, savings, savingsRate }
+  return { income, expense, savings, leftover, savingsRate }
 }
 
 export interface MonthComparison {
   income: number
   expense: number
   savings: number
+  leftover: number
 }
 
 export function compareSummaries(
@@ -61,6 +70,7 @@ export function compareSummaries(
     income: current.income - previous.income,
     expense: current.expense - previous.expense,
     savings: current.savings - previous.savings,
+    leftover: current.leftover - previous.leftover,
   }
 }
 
@@ -181,6 +191,7 @@ export interface MonthlyPoint {
   income: number
   expense: number
   savings: number
+  leftover: number
 }
 
 /** Builds one point per month in [earliestMonthKey, latestMonthKey] inclusive, even for months with no transactions. */

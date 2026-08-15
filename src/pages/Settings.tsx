@@ -112,7 +112,8 @@ export default function Settings() {
   // ---- Categories ----
   const { categories: expenseCategories, isLoading: expenseCategoriesLoading } = useCategories('expense')
   const { categories: incomeCategories, isLoading: incomeCategoriesLoading } = useCategories('income')
-  const allCategories = [...expenseCategories, ...incomeCategories]
+  const { categories: savingsCategories, isLoading: savingsCategoriesLoading } = useCategories('savings')
+  const allCategories = [...expenseCategories, ...incomeCategories, ...savingsCategories]
   const createCategoryMutation = useCreateCategory()
   const updateCategoryMutation = useUpdateCategory()
   const [categoryDialog, setCategoryDialog] = useState<{ open: boolean; editing: Category | null; type: CategoryType }>({
@@ -331,6 +332,7 @@ export default function Settings() {
             [
               { type: 'expense' as const, label: 'Expense', categories: expenseCategories, isLoading: expenseCategoriesLoading },
               { type: 'income' as const, label: 'Income', categories: incomeCategories, isLoading: incomeCategoriesLoading },
+              { type: 'savings' as const, label: 'Savings', categories: savingsCategories, isLoading: savingsCategoriesLoading },
             ]
           ).map((group) => (
             <div key={group.type} className="space-y-2">

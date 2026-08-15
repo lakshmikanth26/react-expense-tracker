@@ -16,6 +16,7 @@ export default function Analytics() {
   const { transactions, isLoading } = useMonthTransactions(monthKey)
   const { transactions: previousTransactions } = useMonthTransactions(previousMonthKey)
   const { categories } = useCategories('expense')
+  const { categories: savingsCategories } = useCategories('savings')
   const { members } = useMembers()
 
   function setMonthKey(next: string) {
@@ -35,12 +36,23 @@ export default function Analytics() {
             <TabsTrigger value="category" className="flex-1">
               By Category
             </TabsTrigger>
+            <TabsTrigger value="savings" className="flex-1">
+              By Savings
+            </TabsTrigger>
             <TabsTrigger value="member" className="flex-1">
               By Member
             </TabsTrigger>
           </TabsList>
           <TabsContent value="category" className="pt-2">
-            <CategoryAnalyticsTable transactions={transactions} previousTransactions={previousTransactions} categories={categories} />
+            <CategoryAnalyticsTable transactions={transactions} previousTransactions={previousTransactions} categories={categories} type="expense" />
+          </TabsContent>
+          <TabsContent value="savings" className="pt-2">
+            <CategoryAnalyticsTable
+              transactions={transactions}
+              previousTransactions={previousTransactions}
+              categories={savingsCategories}
+              type="savings"
+            />
           </TabsContent>
           <TabsContent value="member" className="pt-2">
             <MemberAnalyticsList transactions={transactions} members={members} />

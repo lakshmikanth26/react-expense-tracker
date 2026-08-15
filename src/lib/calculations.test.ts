@@ -21,7 +21,7 @@ describe('toPaise / fromPaise', () => {
 })
 
 describe('computeSummary', () => {
-  it('excludes transfers from income and expense', () => {
+  it('excludes transfers from income, expense, and savings', () => {
     const summary = computeSummary([
       { type: 'income', amount: '136000' },
       { type: 'expense', amount: '72450' },
@@ -29,8 +29,21 @@ describe('computeSummary', () => {
     ])
     expect(summary.income).toBe(136000)
     expect(summary.expense).toBe(72450)
-    expect(summary.savings).toBe(63550)
-    expect(summary.savingsRate).toBeCloseTo(46.73, 1)
+    expect(summary.savings).toBe(0)
+    expect(summary.leftover).toBe(63550)
+    expect(summary.savingsRate).toBe(0)
+  })
+
+  it('tallies savings-type transactions separately from expense, and factors them into leftover', () => {
+    const summary = computeSummary([
+      { type: 'income', amount: '100000' },
+      { type: 'expense', amount: '40000' },
+      { type: 'savings', amount: '25000' },
+    ])
+    expect(summary.expense).toBe(40000)
+    expect(summary.savings).toBe(25000)
+    expect(summary.leftover).toBe(35000)
+    expect(summary.savingsRate).toBeCloseTo(25, 5)
   })
 
   it('returns a 0 savings rate when there is no income', () => {
@@ -72,9 +85,9 @@ describe('computeMonthlySeries', () => {
       '2026-08-01'
     )
     expect(series.map((p) => p.month)).toEqual(['2026-06-01', '2026-07-01', '2026-08-01'])
-    expect(series[0]).toMatchObject({ income: 1000, expense: 0, savings: 1000 })
-    expect(series[1]).toMatchObject({ income: 0, expense: 0, savings: 0 })
-    expect(series[2]).toMatchObject({ income: 0, expense: 400, savings: -400 })
+    expect(series[0]).toMatchObject({ income: 1000, expense: 0, savings: 0, leftover: 1000 })
+    expect(series[1]).toMatchObject({ income: 0, expense: 0, savings: 0, leftover: 0 })
+    expect(series[2]).toMatchObject({ income: 0, expense: 400, savings: 0, leftover: -400 })
   })
 })
 

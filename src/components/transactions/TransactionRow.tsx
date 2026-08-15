@@ -16,6 +16,7 @@ interface TransactionRowProps {
 export function TransactionRow({ transaction: t, onEdit, onDuplicate, onDelete }: TransactionRowProps) {
   const isTransfer = t.type === 'transfer'
   const isIncome = t.type === 'income'
+  const isSavings = t.type === 'savings'
 
   const title = isTransfer
     ? `${t.account?.name ?? 'Account'} → ${t.transfer_to_account?.name ?? 'Account'}`
@@ -45,7 +46,7 @@ export function TransactionRow({ transaction: t, onEdit, onDuplicate, onDelete }
           <p
             className={cn(
               'text-sm font-semibold tabular-nums',
-              isTransfer ? 'text-foreground' : isIncome ? 'text-income' : 'text-expense'
+              isTransfer ? 'text-foreground' : isIncome ? 'text-income' : isSavings ? 'text-savings' : 'text-expense'
             )}
           >
             {isTransfer ? '' : isIncome ? '+' : '−'}

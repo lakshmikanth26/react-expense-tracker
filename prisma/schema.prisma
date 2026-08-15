@@ -22,6 +22,7 @@ datasource db {
 enum CategoryType {
   expense
   income
+  savings
 
   @@map("category_type")
 }
@@ -42,6 +43,7 @@ enum TransactionType {
   expense
   income
   transfer
+  savings
 
   @@map("transaction_type")
 }

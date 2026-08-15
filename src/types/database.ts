@@ -8,11 +8,11 @@
 // go through toPaise()/fromPaise() in lib/calculations.ts rather than doing
 // arithmetic on them directly.
 
-export type CategoryType = 'expense' | 'income'
+export type CategoryType = 'expense' | 'income' | 'savings'
 
 export type AccountType = 'cash' | 'bank' | 'savings' | 'credit_card' | 'upi' | 'wallet' | 'other'
 
-export type TransactionType = 'expense' | 'income' | 'transfer'
+export type TransactionType = 'expense' | 'income' | 'transfer' | 'savings'
 
 export type RecurringFrequency = 'daily' | 'weekly' | 'monthly' | 'yearly'
 

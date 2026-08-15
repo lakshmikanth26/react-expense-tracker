@@ -11,17 +11,19 @@ interface CategoryAnalyticsTableProps {
   transactions: TransactionWithRelations[]
   previousTransactions: TransactionWithRelations[]
   categories: Category[]
+  /** Which transaction type this table summarizes. Defaults to 'expense'. */
+  type?: 'expense' | 'savings'
 }
 
-export function CategoryAnalyticsTable({ transactions, previousTransactions, categories }: CategoryAnalyticsTableProps) {
+export function CategoryAnalyticsTable({ transactions, previousTransactions, categories, type = 'expense' }: CategoryAnalyticsTableProps) {
   const navigate = useNavigate()
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
 
-  const expenses = transactions.filter((t) => t.type === 'expense')
-  const previousExpenses = previousTransactions.filter((t) => t.type === 'expense')
+  const filtered = transactions.filter((t) => t.type === type)
+  const previousFiltered = previousTransactions.filter((t) => t.type === type)
 
-  const totals = computeCategoryTotals(expenses)
-  const previousTotals = computeCategoryTotals(previousExpenses)
+  const totals = computeCategoryTotals(filtered)
+  const previousTotals = computeCategoryTotals(previousFiltered)
   const previousByCategory = new Map(previousTotals.map((t) => [t.categoryId, t.amount]))
 
   const categoryById = new Map(categories.map((c) => [c.id, c]))
@@ -34,7 +36,7 @@ export function CategoryAnalyticsTable({ transactions, previousTransactions, cat
       <EmptyState
         icon={PieChart}
         title="Not enough data yet"
-        description="Add a few expenses to see your category breakdown."
+        description={type === 'savings' ? 'Add a few savings entries to see your category breakdown.' : 'Add a few expenses to see your category breakdown.'}
       />
     )
   }
@@ -85,7 +87,12 @@ export function CategoryAnalyticsTable({ transactions, previousTransactions, cat
               </span>
               <span className="shrink-0 text-right">
                 <span className="block font-semibold tabular-nums">{formatCurrency(total.amount)}</span>
-                <span className={cn('block text-xs tabular-nums', diff <= 0 ? 'text-income' : 'text-expense')}>
+                <span
+                  className={cn(
+                    'block text-xs tabular-nums',
+                    type === 'savings' ? (diff >= 0 ? 'text-income' : 'text-expense') : diff <= 0 ? 'text-income' : 'text-expense'
+                  )}
+                >
                   {formatSignedCurrency(diff)}
                 </span>
               </span>

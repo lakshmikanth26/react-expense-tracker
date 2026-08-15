@@ -37,6 +37,7 @@ function MonthlyReport({ monthKey, onChangeMonth }: { monthKey: string; onChange
   const { budgets } = useBudgets(monthKey)
   const summary = computeSummary(transactions)
   const expenseTotals = computeCategoryTotals(transactions.filter((t) => t.type === 'expense'))
+  const savingsTotals = computeCategoryTotals(transactions.filter((t) => t.type === 'savings'))
   const categoryById = new Map(transactions.filter((t) => t.category).map((t) => [t.category_id, t.category!]))
   const largestExpenses = [...transactions].filter((t) => t.type === 'expense').sort((a, b) => Number(b.amount) - Number(a.amount)).slice(0, 5)
   const spentByCategory = new Map(expenseTotals.map((t) => [t.categoryId, t.amount]))
@@ -63,7 +64,25 @@ function MonthlyReport({ monthKey, onChangeMonth }: { monthKey: string; onChange
       </div>
 
       <div className="rounded-xl border p-4">
-        <p className="mb-3 text-sm font-semibold">Top categories</p>
+        <p className="mb-3 text-sm font-semibold">Savings by category</p>
+        {savingsTotals.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No savings entries this month.</p>
+        ) : (
+          <div className="space-y-1.5 text-sm">
+            {savingsTotals.slice(0, 8).map((t) => (
+              <div key={t.categoryId ?? 'uncategorized'} className="flex justify-between">
+                <span className="text-muted-foreground">
+                  {categoryById.get(t.categoryId)?.icon} {categoryById.get(t.categoryId)?.name ?? 'Uncategorized'}
+                </span>
+                <span className="tabular-nums text-savings">{formatCurrency(t.amount)} ({formatPercent(t.percentage, 0)})</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="rounded-xl border p-4">
+        <p className="mb-3 text-sm font-semibold">Top expense categories</p>
         {expenseTotals.length === 0 ? (
           <p className="text-sm text-muted-foreground">No expenses this month.</p>
         ) : (

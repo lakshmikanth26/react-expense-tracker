@@ -108,6 +108,7 @@ export function CategoryFormDialog({ trigger, editing, defaultType, categories, 
               <SelectContent>
                 <SelectItem value="expense">Expense</SelectItem>
                 <SelectItem value="income">Income</SelectItem>
+                <SelectItem value="savings">Savings</SelectItem>
               </SelectContent>
             </Select>
           </div>

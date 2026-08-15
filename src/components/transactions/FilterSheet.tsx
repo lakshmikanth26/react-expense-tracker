@@ -102,6 +102,7 @@ export function FilterSheet({ categories, accounts, members, value, onChange }: 
                 <SelectItem value={ALL}>All types</SelectItem>
                 <SelectItem value="expense">Expense</SelectItem>
                 <SelectItem value="income">Income</SelectItem>
+                <SelectItem value="savings">Savings</SelectItem>
                 <SelectItem value="transfer">Transfer</SelectItem>
               </SelectContent>
             </Select>

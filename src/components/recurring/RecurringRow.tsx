@@ -23,6 +23,7 @@ interface RecurringRowProps {
 
 export function RecurringRow({ recurring, onToggleActive, onEdit, onDelete }: RecurringRowProps) {
   const isIncome = recurring.type === 'income'
+  const isSavings = recurring.type === 'savings'
   const isTransfer = recurring.type === 'transfer'
 
   return (
@@ -37,7 +38,12 @@ export function RecurringRow({ recurring, onToggleActive, onEdit, onDelete }: Re
           {recurring.interval > 1 ? ` (every ${recurring.interval})` : ''} · Next {formatDayLabel(recurring.next_run_date)}
         </p>
       </div>
-      <p className={cn('shrink-0 text-sm font-semibold tabular-nums', !isTransfer && (isIncome ? 'text-income' : 'text-expense'))}>
+      <p
+        className={cn(
+          'shrink-0 text-sm font-semibold tabular-nums',
+          !isTransfer && (isIncome ? 'text-income' : isSavings ? 'text-savings' : 'text-expense')
+        )}
+      >
         {!isTransfer && (isIncome ? '+' : '−')}
         {formatCurrencyPrecise(Number(recurring.amount))}
       </p>
