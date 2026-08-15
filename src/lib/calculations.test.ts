@@ -2,9 +2,12 @@ import { describe, expect, it } from 'vitest'
 import {
   computeBudgetUsage,
   computeCategoryTotals,
+  computeMemberTotals,
   computeMonthlySeries,
   computeSummary,
+  filterByMonth,
   fromPaise,
+  groupByDateDescending,
   summarizeAccountBalances,
   toPaise,
 } from './calculations'
@@ -86,5 +89,47 @@ describe('summarizeAccountBalances', () => {
     expect(summary.assets).toBe(170000)
     expect(summary.liabilities).toBe(12500)
     expect(summary.netWorth).toBe(157500)
+  })
+})
+
+describe('computeMemberTotals', () => {
+  it('groups by member_id, treating null (unassigned/"Family") as its own bucket', () => {
+    const totals = computeMemberTotals([
+      { member_id: 'alex', amount: '300' },
+      { member_id: 'alex', amount: '200' },
+      { member_id: null, amount: '100' },
+    ])
+    const alex = totals.find((t) => t.memberId === 'alex')!
+    const family = totals.find((t) => t.memberId === null)!
+    expect(alex.amount).toBe(500)
+    expect(alex.transactionCount).toBe(2)
+    expect(family.amount).toBe(100)
+  })
+})
+
+describe('filterByMonth', () => {
+  it('keeps only transactions whose date falls in the target month', () => {
+    const filtered = filterByMonth(
+      [
+        { transaction_date: '2026-08-01' },
+        { transaction_date: '2026-08-31' },
+        { transaction_date: '2026-07-31' },
+        { transaction_date: '2026-09-01' },
+      ],
+      '2026-08-15'
+    )
+    expect(filtered.map((t) => t.transaction_date)).toEqual(['2026-08-01', '2026-08-31'])
+  })
+})
+
+describe('groupByDateDescending', () => {
+  it('groups same-day transactions together and orders groups newest first', () => {
+    const groups = groupByDateDescending([
+      { transaction_date: '2026-08-01', id: 'a' },
+      { transaction_date: '2026-08-03', id: 'b' },
+      { transaction_date: '2026-08-01', id: 'c' },
+    ])
+    expect(groups.map(([date]) => date)).toEqual(['2026-08-03', '2026-08-01'])
+    expect(groups.find(([date]) => date === '2026-08-01')![1]).toHaveLength(2)
   })
 })
