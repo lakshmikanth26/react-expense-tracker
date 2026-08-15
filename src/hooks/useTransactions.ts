@@ -41,7 +41,7 @@ export function useTransactionsList(
   }
 }
 
-/** Invalidates every screen a transaction write can affect: lists, recents, account balances, and goal progress. */
+/** Invalidates every screen a transaction write can affect: lists, recents, account balances, goal progress, and loan balances. */
 function useInvalidateAfterTransactionWrite() {
   const { family } = useFamily()
   const queryClient = useQueryClient()
@@ -49,6 +49,7 @@ function useInvalidateAfterTransactionWrite() {
     queryClient.invalidateQueries({ queryKey: ['transactions'] })
     queryClient.invalidateQueries({ queryKey: queryKeys.accounts(family?.id) })
     queryClient.invalidateQueries({ queryKey: ['savings-goals', family?.id] })
+    queryClient.invalidateQueries({ queryKey: ['loans', family?.id] })
   }
 }
 

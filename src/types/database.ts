@@ -92,6 +92,7 @@ export interface Transaction {
   account_id: string | null
   transfer_to_account_id: string | null
   goal_id: string | null
+  loan_id: string | null
   type: TransactionType
   amount: string
   transaction_date: string
@@ -113,6 +114,7 @@ export interface TransactionWithRelations extends Transaction {
   transfer_to_account: Pick<Account, 'id' | 'name' | 'type'> | null
   member: Pick<FamilyMember, 'id' | 'name' | 'avatar_url'> | null
   goal: Pick<SavingsGoal, 'id' | 'name' | 'icon'> | null
+  loan: Pick<Loan, 'id' | 'name' | 'icon'> | null
 }
 
 export interface RecurringTransaction {
@@ -123,6 +125,7 @@ export interface RecurringTransaction {
   account_id: string | null
   transfer_to_account_id: string | null
   goal_id: string | null
+  loan_id: string | null
   type: TransactionType
   amount: string
   description: string | null
@@ -173,6 +176,24 @@ export interface QuickAddPreset {
   member_id: string | null
   sort_order: number
   is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface Loan {
+  id: string
+  family_id: string
+  name: string
+  icon: string | null
+  /** Balance anchor: "amount owed as of start_date", not necessarily the loan's original amount. */
+  principal_amount: string
+  /** Annual interest rate as a percentage, e.g. "7.30" for 7.30%. */
+  interest_rate: string
+  emi_amount: string
+  /** Kept in sync by the recompute_loan_balance DB trigger — never write this directly except for manual correction. */
+  current_balance: string
+  start_date: string
+  is_closed: boolean
   created_at: string
   updated_at: string
 }

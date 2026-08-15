@@ -20,6 +20,7 @@ export interface RecurringTransactionInput {
   account_id: string | null
   transfer_to_account_id: string | null
   goal_id: string | null
+  loan_id: string | null
   type: RecurringTransaction['type']
   amount: number
   description: string | null
@@ -81,6 +82,7 @@ export async function generateDueRecurringTransactions(familyId: string): Promis
         account_id: recurring.account_id,
         transfer_to_account_id: recurring.transfer_to_account_id,
         goal_id: recurring.goal_id ?? null,
+        loan_id: recurring.loan_id ?? null,
         type: recurring.type,
         amount: Number(recurring.amount),
         transaction_date: nextRunDate,

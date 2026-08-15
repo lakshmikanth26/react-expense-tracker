@@ -8,7 +8,8 @@ const RELATIONS_SELECT = `
   account:accounts!transactions_account_id_fkey(id, name, type),
   transfer_to_account:accounts!transactions_transfer_to_account_id_fkey(id, name, type),
   member:family_members(id, name, avatar_url),
-  goal:savings_goals(id, name, icon)
+  goal:savings_goals(id, name, icon),
+  loan:loans(id, name, icon)
 `
 
 export interface TransactionInput {
@@ -18,6 +19,7 @@ export interface TransactionInput {
   account_id: string | null
   transfer_to_account_id: string | null
   goal_id: string | null
+  loan_id: string | null
   type: Transaction['type']
   amount: number
   transaction_date: string
@@ -177,6 +179,7 @@ export async function duplicateTransaction(source: Transaction): Promise<Transac
     account_id: source.account_id,
     transfer_to_account_id: source.transfer_to_account_id,
     goal_id: source.goal_id,
+    loan_id: source.loan_id,
     type: source.type,
     amount: Number(source.amount),
     transaction_date: todayKey(),

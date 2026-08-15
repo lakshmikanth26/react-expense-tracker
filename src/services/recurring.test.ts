@@ -10,6 +10,7 @@ const mockRow: RecurringTransaction = {
   account_id: 'acc1',
   transfer_to_account_id: null,
   goal_id: null,
+  loan_id: null,
   type: 'expense',
   amount: '25000',
   description: 'Home loan EMI',

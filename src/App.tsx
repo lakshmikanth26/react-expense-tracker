@@ -16,6 +16,7 @@ const Budgets = lazy(() => import('@/pages/Budgets'))
 const Goals = lazy(() => import('@/pages/Goals'))
 const Recurring = lazy(() => import('@/pages/Recurring'))
 const Accounts = lazy(() => import('@/pages/Accounts'))
+const LoansPage = lazy(() => import('@/pages/Loans'))
 const InsurancePage = lazy(() => import('@/pages/Insurance'))
 const Reports = lazy(() => import('@/pages/Reports'))
 const Settings = lazy(() => import('@/pages/Settings'))
@@ -45,6 +46,7 @@ function App() {
                 <Route path="/goals" element={<Goals />} />
                 <Route path="/recurring" element={<Recurring />} />
                 <Route path="/accounts" element={<Accounts />} />
+                <Route path="/loans" element={<LoansPage />} />
                 <Route path="/insurance" element={<InsurancePage />} />
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/settings" element={<Settings />} />

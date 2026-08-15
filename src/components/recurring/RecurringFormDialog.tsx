@@ -16,10 +16,12 @@ import { CategorySelector } from '@/components/transactions/CategorySelector'
 import { AccountSelector } from '@/components/transactions/AccountSelector'
 import { MemberSelector } from '@/components/transactions/MemberSelector'
 import { GoalSelector } from '@/components/transactions/GoalSelector'
+import { LoanSelector } from '@/components/transactions/LoanSelector'
 import { useCategories } from '@/hooks/useCategories'
 import { useAccounts } from '@/hooks/useAccounts'
 import { useMembers } from '@/hooks/useMembers'
 import { useSavingsGoals } from '@/hooks/useGoals'
+import { useLoans } from '@/hooks/useLoans'
 import { todayKey } from '@/lib/dates'
 import type { RecurringFrequency, RecurringTransaction, TransactionType } from '@/types'
 
@@ -32,6 +34,7 @@ export interface RecurringFormValues {
   transferToAccountId: string | null
   memberId: string | null
   goalId: string | null
+  loanId: string | null
   frequency: RecurringFrequency
   interval: string
   startDate: string
@@ -57,6 +60,7 @@ function toFormValues(r?: RecurringTransaction | null): RecurringFormValues {
       transferToAccountId: null,
       memberId: null,
       goalId: null,
+      loanId: null,
       frequency: 'monthly',
       interval: '1',
       startDate: todayKey(),
@@ -72,6 +76,7 @@ function toFormValues(r?: RecurringTransaction | null): RecurringFormValues {
     transferToAccountId: r.transfer_to_account_id,
     memberId: r.member_id,
     goalId: r.goal_id,
+    loanId: r.loan_id,
     frequency: r.frequency,
     interval: String(r.interval),
     startDate: r.start_date,
@@ -91,6 +96,7 @@ export function RecurringFormDialog({ trigger, editing, open, onOpenChange, onSa
   const { accounts } = useAccounts()
   const { members } = useMembers()
   const { goals } = useSavingsGoals()
+  const { loans } = useLoans()
 
   function set<K extends keyof RecurringFormValues>(key: K, val: RecurringFormValues[K]) {
     setValues((v) => ({ ...v, [key]: val }))
@@ -187,6 +193,13 @@ export function RecurringFormDialog({ trigger, editing, open, onOpenChange, onSa
             <div className="space-y-1.5">
               <Label>Goal</Label>
               <GoalSelector goals={goals} value={values.goalId} onChange={(v) => set('goalId', v)} />
+            </div>
+          )}
+
+          {values.type === 'expense' && (
+            <div className="space-y-1.5">
+              <Label>Loan</Label>
+              <LoanSelector loans={loans} value={values.loanId} onChange={(v) => set('loanId', v)} />
             </div>
           )}
 

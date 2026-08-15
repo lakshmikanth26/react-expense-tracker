@@ -11,6 +11,7 @@ function txn(overrides: Partial<TransactionWithRelations>): TransactionWithRelat
     account_id: 'a1',
     transfer_to_account_id: null,
     goal_id: null,
+    loan_id: null,
     type: 'expense',
     amount: '0',
     transaction_date: '2026-08-01',
@@ -28,6 +29,7 @@ function txn(overrides: Partial<TransactionWithRelations>): TransactionWithRelat
     transfer_to_account: null,
     member: null,
     goal: null,
+    loan: null,
     ...overrides,
   }
 }
