@@ -16,6 +16,8 @@ export type TransactionType = 'expense' | 'income' | 'transfer' | 'savings'
 
 export type RecurringFrequency = 'daily' | 'weekly' | 'monthly' | 'yearly'
 
+export type InsuranceType = 'health' | 'life' | 'vehicle' | 'home' | 'other'
+
 export interface Profile {
   id: string
   user_id: string
@@ -172,4 +174,30 @@ export interface QuickAddPreset {
   is_active: boolean
   created_at: string
   updated_at: string
+}
+
+export interface Insurance {
+  id: string
+  family_id: string
+  name: string
+  type: InsuranceType
+  provider: string | null
+  policy_number: string | null
+  premium_amount: string | null
+  renewal_date: string | null
+  notes: string | null
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface InsuranceDocument {
+  id: string
+  insurance_id: string
+  family_id: string
+  file_name: string
+  storage_path: string
+  file_size: number | null
+  content_type: string | null
+  created_at: string
 }

@@ -1,4 +1,4 @@
-import { Home, Receipt, BarChart3, Wallet, Target, Repeat, Settings, Landmark, FileText, type LucideIcon } from 'lucide-react'
+import { Home, Receipt, BarChart3, Wallet, Target, Repeat, Settings, Landmark, FileText, ShieldCheck, type LucideIcon } from 'lucide-react'
 
 export interface NavItem {
   to: string
@@ -19,6 +19,7 @@ export const secondaryNavItems: NavItem[] = [
   { to: '/goals', label: 'Goals', icon: Target },
   { to: '/recurring', label: 'Recurring', icon: Repeat },
   { to: '/accounts', label: 'Accounts', icon: Landmark },
+  { to: '/insurance', label: 'Insurance', icon: ShieldCheck },
   { to: '/reports', label: 'Reports', icon: FileText },
   { to: '/settings', label: 'Settings', icon: Settings },
 ]
