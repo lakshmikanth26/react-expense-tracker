@@ -1,8 +1,11 @@
 import { Outlet } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { BottomNav } from './BottomNav'
+import { useRecurringSync } from '@/hooks/useRecurringSync'
 
 export function AppShell() {
+  useRecurringSync()
+
   return (
     <div className="flex min-h-dvh">
       <Sidebar />

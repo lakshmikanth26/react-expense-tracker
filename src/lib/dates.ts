@@ -1,3 +1,5 @@
+import type { RecurringFrequency } from '@/types'
+
 /**
  * `transaction_date` is a plain SQL `date` (no time/zone). Treat it as an opaque
  * 'YYYY-MM-DD' key everywhere and only ever construct/read local Date objects —
@@ -62,4 +64,31 @@ export function startOfMonthKey(key: string): string {
 
 export function endOfMonthKeyExclusive(key: string): string {
   return addMonths(monthKeyOf(key), 1)
+}
+
+export function addDays(key: string, delta: number): string {
+  const date = parseDateKey(key)
+  date.setDate(date.getDate() + delta)
+  return toDateKey(date)
+}
+
+/** Advances a recurring transaction's schedule by one interval, clamping day-of-month overflow (e.g. day 31 in February). */
+export function advanceDateKey(key: string, frequency: RecurringFrequency, interval: number): string {
+  switch (frequency) {
+    case 'daily':
+      return addDays(key, interval)
+    case 'weekly':
+      return addDays(key, interval * 7)
+    case 'yearly': {
+      const date = parseDateKey(key)
+      return toDateKey(new Date(date.getFullYear() + interval, date.getMonth(), date.getDate()))
+    }
+    case 'monthly':
+    default: {
+      const date = parseDateKey(key)
+      const targetMonthIndex = date.getMonth() + interval
+      const lastDayOfTargetMonth = new Date(date.getFullYear(), targetMonthIndex + 1, 0).getDate()
+      return toDateKey(new Date(date.getFullYear(), targetMonthIndex, Math.min(date.getDate(), lastDayOfTargetMonth)))
+    }
+  }
 }
