@@ -1,0 +1,63 @@
+src/components/transactions/DateField.tsx
+  6d026e634ccd3706 1-29
+src/hooks/useMembers.ts
+  6d026e634ccd3706 1-15
+src/hooks/useCategories.ts
+  6d026e634ccd3706 1-16
+src/services/categories.ts
+  6d026e634ccd3706 1-32
+src/components/transactions/AccountSelector.tsx
+  6d026e634ccd3706 1-58
+src/hooks/useFamily.ts
+  6d026e634ccd3706 4,9,26
+src/lib/account-icons.ts
+  6d026e634ccd3706 1-21
+src/components/common/ConfirmDialog.tsx
+  6d026e634ccd3706 1-50
+src/components/transactions/TransactionList.tsx
+  6d026e634ccd3706 1-47
+src/components/transactions/CategorySelector.tsx
+  6d026e634ccd3706 1-66
+src/hooks/useAccounts.ts
+  6d026e634ccd3706 1-15
+src/components/transactions/CurrencyInput.tsx
+  6d026e634ccd3706 1-44
+src/lib/queryKeys.ts
+  6d026e634ccd3706 1-11
+src/lib/recent-selections.ts
+  6d026e634ccd3706 1-33
+src/components/transactions/MemberSelector.tsx
+  6d026e634ccd3706 1-78
+src/hooks/useTransactions.ts
+  6d026e634ccd3706 1-80
+src/services/transactions.ts
+  6d026e634ccd3706 1-102
+src/pages/AddTransaction.tsx
+  6d026e634ccd3706 1-26,28-32,36-133,135,138-223
+src/components/transactions/TransactionRow.tsx
+  6d026e634ccd3706 1-82
+src/pages/Transactions.tsx
+  6d026e634ccd3706 1-12,14-43,46-93
+src/services/accounts.ts
+  6d026e634ccd3706 1-35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.23",
+  "base_commit_sha": "5a487450d5e08cd4dbc6d2c29cbafef33465048c",
+  "prompts": {
+    "6d026e634ccd3706": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "399b09e2-245b-41ea-892b-0f829169fa1c",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Lakshmikanth <lakshmikanth.d@gdn-commerce.com>",
+      "messages": [],
+      "total_additions": 1127,
+      "total_deletions": 13,
+      "accepted_lines": 1125,
+      "overriden_lines": 0
+    }
+  }
+}
