@@ -23,6 +23,7 @@ export default function Recurring() {
   const updateMutation = useUpdateRecurringTransaction()
   const deleteMutation = useDeleteRecurringTransaction()
 
+  const [addOpen, setAddOpen] = useState(false)
   const [dialogState, setDialogState] = useState<{ open: boolean; editing: RecurringTransaction | null }>({ open: false, editing: null })
   const [pendingDelete, setPendingDelete] = useState<RecurringTransaction | null>(null)
 
@@ -87,6 +88,8 @@ export default function Recurring() {
               <Plus className="size-4" /> Add
             </Button>
           }
+          open={addOpen}
+          onOpenChange={setAddOpen}
           onSave={handleSave}
         />
       </div>

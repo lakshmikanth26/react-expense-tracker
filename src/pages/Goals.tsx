@@ -18,6 +18,7 @@ export default function Goals() {
   const updateMutation = useUpdateSavingsGoal()
   const deleteMutation = useDeleteSavingsGoal()
 
+  const [addOpen, setAddOpen] = useState(false)
   const [dialogState, setDialogState] = useState<{ open: boolean; editing: SavingsGoal | null }>({ open: false, editing: null })
   const [pendingDelete, setPendingDelete] = useState<SavingsGoal | null>(null)
 
@@ -66,6 +67,8 @@ export default function Goals() {
               <Plus className="size-4" /> New goal
             </Button>
           }
+          open={addOpen}
+          onOpenChange={setAddOpen}
           onSave={handleSave}
         />
       </div>

@@ -27,6 +27,7 @@ export default function Budgets() {
   const upsertMutation = useUpsertBudget(monthKey)
   const deleteMutation = useDeleteBudget(monthKey)
 
+  const [addOpen, setAddOpen] = useState(false)
   const [dialogState, setDialogState] = useState<{ open: boolean; budget: Budget | null }>({ open: false, budget: null })
   const [pendingDelete, setPendingDelete] = useState<Budget | null>(null)
 
@@ -77,6 +78,8 @@ export default function Budgets() {
           monthKey={monthKey}
           categories={categories}
           existingBudgets={budgets}
+          open={addOpen}
+          onOpenChange={setAddOpen}
           onSave={handleSave}
         />
       </div>
