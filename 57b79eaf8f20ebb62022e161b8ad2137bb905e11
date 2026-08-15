@@ -1,0 +1,41 @@
+src/components/transactions/GoalSelector.tsx
+  6d026e634ccd3706 1-67
+prisma/schema.prisma
+  6d026e634ccd3706 167,186,193,263-264
+src/lib/insights.test.ts
+  6d026e634ccd3706 13,30
+src/services/recurring.ts
+  6d026e634ccd3706 82
+supabase/functions/telegram-webhook/index.ts
+  6d026e634ccd3706 122-136,172-175,193,211,215-217,227-229,232-238,240-245,248-252,267,281-283
+src/services/transactions.ts
+  6d026e634ccd3706 10-11,20,179
+src/types/database.ts
+  6d026e634ccd3706 92,113
+src/hooks/useTransactions.ts
+  6d026e634ccd3706 44,51
+src/pages/AddTransaction.tsx
+  6d026e634ccd3706 12,19,54,64,81,115,188-194
+prisma/migrations/20260101000007_savings_goal_link/migration.sql
+  6d026e634ccd3706 1-75
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.23",
+  "base_commit_sha": "57b79eaf8f20ebb62022e161b8ad2137bb905e11",
+  "prompts": {
+    "6d026e634ccd3706": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "399b09e2-245b-41ea-892b-0f829169fa1c",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Lakshmikanth <lakshmikanth.d@gdn-commerce.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 220,
+      "overriden_lines": 0
+    }
+  }
+}
