@@ -183,7 +183,7 @@ export function RecurringFormDialog({ trigger, editing, open, onOpenChange, onSa
             <MemberSelector members={members} value={values.memberId} onChange={(v) => set('memberId', v)} />
           </div>
 
-          {values.type === 'savings' && (
+          {(values.type === 'savings' || values.type === 'expense') && (
             <div className="space-y-1.5">
               <Label>Goal</Label>
               <GoalSelector goals={goals} value={values.goalId} onChange={(v) => set('goalId', v)} />

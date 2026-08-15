@@ -112,7 +112,7 @@ export default function AddTransaction() {
       category_id: type === 'transfer' ? null : categoryId,
       account_id: accountId,
       transfer_to_account_id: type === 'transfer' ? transferToAccountId : null,
-      goal_id: type === 'savings' ? goalId : null,
+      goal_id: type === 'savings' || type === 'expense' ? goalId : null,
       type,
       amount: Number(amount),
       transaction_date: dateKey,
@@ -185,7 +185,7 @@ export default function AddTransaction() {
           <MemberSelector members={members} value={memberId} onChange={setMemberId} />
         </div>
 
-        {type === 'savings' && (
+        {(type === 'savings' || type === 'expense') && (
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-muted-foreground">Goal</label>
             <GoalSelector goals={goals} value={goalId} onChange={setGoalId} />

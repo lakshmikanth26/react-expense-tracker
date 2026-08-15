@@ -9,7 +9,7 @@ interface GoalSelectorProps {
   onChange: (goalId: string | null) => void
 }
 
-/** Optional: a savings transaction doesn't have to count toward a goal — "No goal" (null) is first-class. */
+/** Optional: a savings or expense transaction doesn't have to count toward a goal — "No goal" (null) is first-class. */
 export function GoalSelector({ goals, value, onChange }: GoalSelectorProps) {
   const [open, setOpen] = useState(false)
   const selected = goals.find((g) => g.id === value)
@@ -30,7 +30,7 @@ export function GoalSelector({ goals, value, onChange }: GoalSelectorProps) {
       </SheetTrigger>
       <SheetContent side="bottom" className="max-h-[80vh] overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>Savings goal</SheetTitle>
+          <SheetTitle>Goal</SheetTitle>
         </SheetHeader>
         <div className="flex flex-col gap-1.5 pt-2 pb-6">
           <button

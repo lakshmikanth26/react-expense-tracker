@@ -35,7 +35,7 @@ export default function Recurring() {
       category_id: values.type === 'transfer' ? null : values.categoryId,
       account_id: values.accountId,
       transfer_to_account_id: values.type === 'transfer' ? values.transferToAccountId : null,
-      goal_id: values.type === 'savings' ? values.goalId : null,
+      goal_id: values.type === 'savings' || values.type === 'expense' ? values.goalId : null,
       type: values.type,
       amount: Number(values.amount),
       description: values.description.trim() || null,
