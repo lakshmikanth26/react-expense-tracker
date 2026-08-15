@@ -3,14 +3,17 @@ import type { ReactNode } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 
+export type OAuthProvider = 'google' | 'azure'
+
 interface AuthContextValue {
   session: Session | null
   user: User | null
   loading: boolean
   signInWithPassword: (email: string, password: string) => Promise<{ error: string | null }>
   signUpWithPassword: (email: string, password: string) => Promise<{ error: string | null }>
-  signInWithOtp: (email: string) => Promise<{ error: string | null }>
-  verifyOtp: (email: string, token: string) => Promise<{ error: string | null }>
+  signInWithPhoneOtp: (phone: string) => Promise<{ error: string | null }>
+  verifyPhoneOtp: (phone: string, token: string) => Promise<{ error: string | null }>
+  signInWithOAuth: (provider: OAuthProvider) => Promise<{ error: string | null }>
   resetPassword: (email: string) => Promise<{ error: string | null }>
   updatePassword: (password: string) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
@@ -50,12 +53,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { error } = await supabase.auth.signUp({ email, password })
         return { error: error?.message ?? null }
       },
-      async signInWithOtp(email) {
-        const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true } })
+      async signInWithPhoneOtp(phone) {
+        const { error } = await supabase.auth.signInWithOtp({ phone })
         return { error: error?.message ?? null }
       },
-      async verifyOtp(email, token) {
-        const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' })
+      async verifyPhoneOtp(phone, token) {
+        const { error } = await supabase.auth.verifyOtp({ phone, token, type: 'sms' })
+        return { error: error?.message ?? null }
+      },
+      async signInWithOAuth(provider) {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider,
+          options: { redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}` },
+        })
         return { error: error?.message ?? null }
       },
       async resetPassword(email) {

@@ -6,15 +6,17 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { OAuthButtons } from '@/components/auth/OAuthButtons'
 import { useAuth } from '@/hooks/useAuth'
 
 type Mode = 'sign-in' | 'sign-up'
 
 export default function Login() {
-  const { signInWithPassword, signUpWithPassword, signInWithOtp, verifyOtp, resetPassword } = useAuth()
+  const { signInWithPassword, signUpWithPassword, signInWithPhoneOtp, verifyPhoneOtp, resetPassword } = useAuth()
   const [mode, setMode] = useState<Mode>('sign-in')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [phone, setPhone] = useState('')
   const [otpSent, setOtpSent] = useState(false)
   const [otp, setOtp] = useState('')
   const [loading, setLoading] = useState(false)
@@ -35,18 +37,18 @@ export default function Login() {
     }
   }
 
-  async function handleOtpSubmit(e: React.FormEvent) {
+  async function handlePhoneOtpSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     if (!otpSent) {
-      const { error } = await signInWithOtp(email)
+      const { error } = await signInWithPhoneOtp(phone)
       setLoading(false)
       if (error) return toast.error(error)
       setOtpSent(true)
-      toast.success('We sent a 6-digit code to your email.')
+      toast.success('We sent a 6-digit code by SMS.')
       return
     }
-    const { error } = await verifyOtp(email, otp)
+    const { error } = await verifyPhoneOtp(phone, otp)
     setLoading(false)
     if (error) toast.error(error)
   }
@@ -70,13 +72,21 @@ export default function Login() {
           <CardDescription>Track expenses and income together, in seconds.</CardDescription>
         </CardHeader>
         <CardContent>
+          <OAuthButtons />
+
+          <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
+            <div className="h-px flex-1 bg-border" />
+            or
+            <div className="h-px flex-1 bg-border" />
+          </div>
+
           <Tabs defaultValue="password">
             <TabsList className="w-full">
               <TabsTrigger value="password" className="flex-1">
                 Password
               </TabsTrigger>
-              <TabsTrigger value="otp" className="flex-1">
-                Email code
+              <TabsTrigger value="phone" className="flex-1">
+                Phone
               </TabsTrigger>
             </TabsList>
 
@@ -129,24 +139,26 @@ export default function Login() {
               </form>
             </TabsContent>
 
-            <TabsContent value="otp" className="pt-4">
-              <form className="space-y-4" onSubmit={handleOtpSubmit}>
+            <TabsContent value="phone" className="pt-4">
+              <form className="space-y-4" onSubmit={handlePhoneOtpSubmit}>
                 <div className="space-y-1.5">
-                  <Label htmlFor="otp-email">Email</Label>
+                  <Label htmlFor="phone">Mobile number</Label>
                   <Input
-                    id="otp-email"
-                    type="email"
+                    id="phone"
+                    type="tel"
+                    placeholder="+91XXXXXXXXXX"
+                    autoComplete="tel"
                     required
                     disabled={otpSent}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
                   />
                 </div>
                 {otpSent && (
                   <div className="space-y-1.5">
-                    <Label htmlFor="otp-code">6-digit code</Label>
+                    <Label htmlFor="phone-otp-code">6-digit code</Label>
                     <Input
-                      id="otp-code"
+                      id="phone-otp-code"
                       inputMode="numeric"
                       autoComplete="one-time-code"
                       required
