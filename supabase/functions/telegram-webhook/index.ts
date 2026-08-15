@@ -19,6 +19,9 @@ const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`
 
 const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
 
+const INSURANCE_DOCUMENTS_BUCKET = 'insurance-documents'
+const MAX_TELEGRAM_FILE_BYTES = 20 * 1024 * 1024 // Bot API's file-download limit
+
 const TYPE_ALIASES: Record<string, 'expense' | 'income' | 'savings'> = {
   expense: 'expense',
   exp: 'expense',
@@ -149,6 +152,21 @@ function findGoal(token: string, goals: GoalRow[]): GoalRow | null {
   )
 }
 
+interface InsuranceRow {
+  id: string
+  name: string
+}
+
+function findInsurance(token: string, insurances: InsuranceRow[]): InsuranceRow | null {
+  const t = token.trim().toLowerCase()
+  return (
+    insurances.find((i) => i.name.toLowerCase() === t) ??
+    insurances.find((i) => i.name.toLowerCase().startsWith(t)) ??
+    insurances.find((i) => i.name.toLowerCase().includes(t)) ??
+    null
+  )
+}
+
 async function handleLink(chatId: number, code: string) {
   const trimmed = code.trim().toUpperCase()
   const { data: linkCode } = await supabase
@@ -241,7 +259,8 @@ async function sendHelp(chatId: number) {
       'order-independent — I figure out which bit is a date, a member, or a goal. Dates can be `today`, ' +
       '`yesterday`, `2026-07-01`, `01/07/2026`, or `01-jul-26`. You can also skip the command and just type ' +
       'e.g. `Expense - 500 - Food - today`.\n\n' +
-      'Send a command with no details (e.g. just `/expense`) to see your own categories.',
+      'Send a command with no details (e.g. just `/expense`) to see your own categories.\n\n' +
+      'Send a photo or PDF with the insurance name as the caption to attach it to that policy.',
   )
 }
 
@@ -425,12 +444,136 @@ async function handleFreeText(chatId: number, text: string) {
   await recordTransaction(chatId, type, parts.slice(1), text)
 }
 
+interface TelegramDocument {
+  file_id: string
+  file_name?: string
+  file_size?: number
+  mime_type?: string
+}
+
+interface TelegramPhotoSize {
+  file_id: string
+  file_size?: number
+}
+
+/** A message carrying a `document` or `photo` (instead of, or alongside, `text`) — the
+ *  caption is treated as the insurance policy name, matched the same way findCategory/
+ *  findGoal match a token, and the file is uploaded straight into the same Storage
+ *  bucket + insurance_documents row the in-app upload flow uses (see src/services/insurance.ts). */
+async function handleInsuranceDocument(
+  chatId: number,
+  document: TelegramDocument | undefined,
+  photos: TelegramPhotoSize[] | undefined,
+  caption: string | undefined,
+) {
+  const member = await getLinkedMember(chatId)
+  if (!member) {
+    await sendMessage(chatId, NOT_LINKED_MESSAGE)
+    return
+  }
+
+  const { data: insurances } = await supabase
+    .from('insurances')
+    .select('id, name')
+    .eq('family_id', member.family_id)
+    .eq('is_active', true)
+  const names = (insurances ?? []).map((i) => i.name).join(', ') || '(none yet — add one in the app)'
+
+  const captionText = caption?.trim()
+  if (!captionText) {
+    await sendMessage(
+      chatId,
+      "Resend that with the insurance policy's name as the caption so I know which policy it belongs to.\n\n" +
+        `Your policies: ${names}`,
+    )
+    return
+  }
+
+  const insurance = findInsurance(captionText, insurances ?? [])
+  if (!insurance) {
+    await sendMessage(chatId, `I couldn't match "${captionText}" to an insurance policy. Your policies: ${names}`)
+    return
+  }
+
+  // Telegram sends photos as an array of resolutions — the last element is the largest.
+  const photo = photos?.[photos.length - 1]
+  const fileId = document?.file_id ?? photo?.file_id
+  const declaredSize = document?.file_size ?? photo?.file_size
+  const fileName = document?.file_name ?? `photo-${Date.now()}.jpg`
+
+  if (!fileId) {
+    await sendMessage(chatId, "I couldn't find a file in that message — send a document or photo with the policy name as the caption.")
+    return
+  }
+
+  if (declaredSize && declaredSize > MAX_TELEGRAM_FILE_BYTES) {
+    await sendMessage(chatId, "That file is too large — Telegram only lets bots download files up to 20MB.")
+    return
+  }
+
+  const fileRes = await fetch(`${TELEGRAM_API}/getFile?file_id=${fileId}`)
+  const fileJson = await fileRes.json()
+  if (!fileJson.ok) {
+    await sendMessage(chatId, "Something went wrong fetching that file from Telegram. Please try again.")
+    return
+  }
+
+  const filePath: string = fileJson.result.file_path
+  const fileSize: number | undefined = fileJson.result.file_size
+  if (fileSize && fileSize > MAX_TELEGRAM_FILE_BYTES) {
+    await sendMessage(chatId, "That file is too large — Telegram only lets bots download files up to 20MB.")
+    return
+  }
+
+  const downloadRes = await fetch(`https://api.telegram.org/file/bot${TELEGRAM_BOT_TOKEN}/${filePath}`)
+  if (!downloadRes.ok) {
+    await sendMessage(chatId, "Something went wrong downloading that file. Please try again.")
+    return
+  }
+  const bytes = new Uint8Array(await downloadRes.arrayBuffer())
+
+  const safeName = fileName.replace(/[^\w.\-]/g, '_')
+  const storagePath = `${member.family_id}/${insurance.id}/${crypto.randomUUID()}-${safeName}`
+  const contentType = document?.mime_type ?? (photo ? 'image/jpeg' : undefined)
+
+  const { error: uploadError } = await supabase.storage.from(INSURANCE_DOCUMENTS_BUCKET).upload(storagePath, bytes, {
+    contentType,
+  })
+  if (uploadError) {
+    await sendMessage(chatId, "Something went wrong saving that file. Please try again or upload it in the app.")
+    return
+  }
+
+  const { error: insertError } = await supabase.from('insurance_documents').insert({
+    insurance_id: insurance.id,
+    family_id: member.family_id,
+    file_name: fileName,
+    storage_path: storagePath,
+    file_size: bytes.byteLength,
+    content_type: contentType ?? null,
+  })
+  if (insertError) {
+    await sendMessage(chatId, "Something went wrong recording that file. Please try again or upload it in the app.")
+    return
+  }
+
+  await sendMessage(chatId, `📎 Saved to *${insurance.name}* — ${fileName}`)
+}
+
 Deno.serve(async (req) => {
   if (req.headers.get('X-Telegram-Bot-Api-Secret-Token') !== TELEGRAM_WEBHOOK_SECRET) {
     return new Response('unauthorized', { status: 401 })
   }
 
-  let update: { message?: { chat: { id: number }; text?: string } }
+  let update: {
+    message?: {
+      chat: { id: number }
+      text?: string
+      caption?: string
+      document?: TelegramDocument
+      photo?: TelegramPhotoSize[]
+    }
+  }
   try {
     update = await req.json()
   } catch {
@@ -438,7 +581,19 @@ Deno.serve(async (req) => {
   }
 
   const message = update.message
-  if (!message?.text) return new Response('ok')
+  if (!message) return new Response('ok')
+
+  if (message.document || message.photo) {
+    try {
+      await handleInsuranceDocument(message.chat.id, message.document, message.photo, message.caption)
+    } catch (error) {
+      console.error('telegram-webhook error', error)
+      await sendMessage(message.chat.id, 'Something went wrong processing that. Please try again.')
+    }
+    return new Response('ok')
+  }
+
+  if (!message.text) return new Response('ok')
 
   const chatId = message.chat.id
   const text = message.text.trim()
