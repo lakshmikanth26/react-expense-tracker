@@ -40,8 +40,20 @@ export interface FamilyMember {
   name: string
   avatar_url: string | null
   is_active: boolean
+  /** BIGINT — kept as a string like other large/precise numeric columns (see header note). */
+  telegram_chat_id: string | null
   created_at: string
   updated_at: string
+}
+
+export interface TelegramLinkCode {
+  id: string
+  family_id: string
+  member_id: string
+  code: string
+  expires_at: string
+  used_at: string | null
+  created_at: string
 }
 
 export interface Category {

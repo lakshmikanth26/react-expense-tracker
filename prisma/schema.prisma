@@ -83,24 +83,27 @@ model Family {
   budgets               Budget[]
   savingsGoals          SavingsGoal[]
   quickAddPresets       QuickAddPreset[]
+  telegramLinkCodes     TelegramLinkCode[]
 
   @@map("families")
 }
 
 model FamilyMember {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  familyId  String   @map("family_id") @db.Uuid
-  userId    String?  @map("user_id") @db.Uuid
-  name      String
-  avatarUrl String?  @map("avatar_url")
-  isActive  Boolean  @default(true) @map("is_active")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  familyId       String   @map("family_id") @db.Uuid
+  userId         String?  @map("user_id") @db.Uuid
+  name           String
+  avatarUrl      String?  @map("avatar_url")
+  isActive       Boolean  @default(true) @map("is_active")
+  telegramChatId BigInt?  @unique @map("telegram_chat_id")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  family       Family                 @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  transactions Transaction[]
-  recurring    RecurringTransaction[]
-  presets      QuickAddPreset[]
+  family            Family                 @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  transactions      Transaction[]
+  recurring         RecurringTransaction[]
+  presets           QuickAddPreset[]
+  telegramLinkCodes TelegramLinkCode[]
 
   @@index([familyId])
   @@map("family_members")
@@ -283,4 +286,22 @@ model QuickAddPreset {
 
   @@index([familyId])
   @@map("quick_add_presets")
+}
+
+/// Short-lived one-time codes for linking a family member's Telegram account
+/// (Settings shows a code; the member sends `/link <code>` to the bot once).
+model TelegramLinkCode {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  familyId  String    @map("family_id") @db.Uuid
+  memberId  String    @map("member_id") @db.Uuid
+  code      String    @unique
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(6)
+  usedAt    DateTime? @map("used_at") @db.Timestamptz(6)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  family Family       @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  member FamilyMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([familyId])
+  @@map("telegram_link_codes")
 }

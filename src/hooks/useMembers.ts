@@ -45,8 +45,13 @@ export function useAddMember() {
 export function useUpdateMember() {
   const invalidate = useInvalidateMembers()
   return useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: Partial<Pick<FamilyMember, 'name' | 'avatar_url' | 'is_active'>> }) =>
-      updateFamilyMember(id, updates),
+    mutationFn: ({
+      id,
+      updates,
+    }: {
+      id: string
+      updates: Partial<Pick<FamilyMember, 'name' | 'avatar_url' | 'is_active' | 'telegram_chat_id'>>
+    }) => updateFamilyMember(id, updates),
     onSuccess: invalidate,
   })
 }

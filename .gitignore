@@ -31,3 +31,6 @@ dist-ssr
 # Prisma / Postgres
 *.pgdata/
 
+# Supabase CLI local cache (project ref, tool versions) — machine-specific, not shared state
+supabase/.temp/
+

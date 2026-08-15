@@ -53,7 +53,7 @@ export async function addFamilyMember(familyId: string, name: string): Promise<F
 
 export async function updateFamilyMember(
   id: string,
-  updates: Partial<Pick<FamilyMember, 'name' | 'avatar_url' | 'is_active'>>
+  updates: Partial<Pick<FamilyMember, 'name' | 'avatar_url' | 'is_active' | 'telegram_chat_id'>>
 ): Promise<FamilyMember> {
   const { data, error } = await supabase.from('family_members').update(updates).eq('id', id).select().single()
   if (error) throw error

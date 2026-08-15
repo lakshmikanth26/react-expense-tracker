@@ -8,6 +8,7 @@ import {
   Moon,
   Pencil,
   Plus,
+  Send,
   Sun,
   Tags,
   Users,
@@ -28,6 +29,7 @@ import { useAddMember, useAllMembers, useUpdateMember } from '@/hooks/useMembers
 import { useCategories, useCreateCategory, useUpdateCategory } from '@/hooks/useCategories'
 import { useAccounts, useCreateAccount, useUpdateAccount } from '@/hooks/useAccounts'
 import { MemberFormDialog } from '@/components/settings/MemberFormDialog'
+import { TelegramLinkDialog } from '@/components/settings/TelegramLinkDialog'
 import { CategoryFormDialog, type CategoryFormValues } from '@/components/settings/CategoryFormDialog'
 import { AccountFormDialog, type AccountFormValues } from '@/components/settings/AccountFormDialog'
 import { DeleteFamilyDialog } from '@/components/settings/DeleteFamilyDialog'
@@ -106,6 +108,17 @@ export default function Settings() {
       toast.success(member.is_active ? 'Member deactivated' : 'Member reactivated')
     } catch (error) {
       toast.error(toFriendlyMessage(error, 'Could not update this member.'))
+    }
+  }
+
+  const [telegramMember, setTelegramMember] = useState<FamilyMember | null>(null)
+
+  async function handleUnlinkTelegram(member: FamilyMember) {
+    try {
+      await updateMemberMutation.mutateAsync({ id: member.id, updates: { telegram_chat_id: null } })
+      toast.success('Telegram unlinked')
+    } catch (error) {
+      toast.error(toFriendlyMessage(error, 'Could not unlink Telegram.'))
     }
   }
 
@@ -298,6 +311,15 @@ export default function Settings() {
                     </span>
                   </span>
                   <span className="flex items-center gap-3">
+                    {member.telegram_chat_id ? (
+                      <Button variant="ghost" size="sm" onClick={() => handleUnlinkTelegram(member)}>
+                        <Send className="size-4 text-savings" /> Linked
+                      </Button>
+                    ) : (
+                      <Button variant="outline" size="sm" onClick={() => setTelegramMember(member)}>
+                        <Send className="size-4" /> Connect Telegram
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="icon-sm"
@@ -495,6 +517,12 @@ export default function Settings() {
         open={memberDialog.open}
         onOpenChange={(open) => setMemberDialog({ open, editing: open ? memberDialog.editing : null })}
         onSave={handleSaveMember}
+      />
+
+      <TelegramLinkDialog
+        member={telegramMember}
+        open={!!telegramMember}
+        onOpenChange={(open) => !open && setTelegramMember(null)}
       />
 
       <CategoryFormDialog
