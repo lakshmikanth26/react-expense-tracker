@@ -1,5 +1,5 @@
 import type { Account, Transaction } from '@/types'
-import { monthKeyOf } from './dates'
+import { addMonths, monthKeyOf } from './dates'
 
 /**
  * All money math happens in integer paise (1 rupee = 100 paise), never in floating
@@ -15,7 +15,10 @@ export function fromPaise(paise: number): number {
   return paise / 100
 }
 
-type MoneyTxn = Pick<Transaction, 'type' | 'amount'>
+interface MoneyTxn {
+  type: Transaction['type']
+  amount: string | number
+}
 
 /**
  * Income - Expenses, transfers excluded (they move money between accounts, they
@@ -171,6 +174,38 @@ export function summarizeAccountBalances(accounts: Pick<Account, 'type' | 'curre
 export function filterByMonth<T extends { transaction_date: string }>(transactions: T[], monthKeyValue: string): T[] {
   const target = monthKeyOf(monthKeyValue)
   return transactions.filter((t) => monthKeyOf(t.transaction_date) === target)
+}
+
+export interface MonthlyPoint {
+  month: string
+  income: number
+  expense: number
+  savings: number
+}
+
+/** Builds one point per month in [earliestMonthKey, latestMonthKey] inclusive, even for months with no transactions. */
+export function computeMonthlySeries<T extends { type: Transaction['type']; amount: string | number; transaction_date: string }>(
+  transactions: T[],
+  earliestMonthKey: string,
+  latestMonthKey: string
+): MonthlyPoint[] {
+  const byMonth = new Map<string, T[]>()
+  for (const t of transactions) {
+    const key = monthKeyOf(t.transaction_date)
+    const list = byMonth.get(key)
+    if (list) list.push(t)
+    else byMonth.set(key, [t])
+  }
+
+  const points: MonthlyPoint[] = []
+  let cursor = monthKeyOf(earliestMonthKey)
+  const end = monthKeyOf(latestMonthKey)
+  while (cursor <= end) {
+    const summary = computeSummary(byMonth.get(cursor) ?? [])
+    points.push({ month: cursor, ...summary })
+    cursor = addMonths(cursor, 1)
+  }
+  return points
 }
 
 export function groupByDateDescending<T extends { transaction_date: string }>(transactions: T[]): Array<[string, T[]]> {

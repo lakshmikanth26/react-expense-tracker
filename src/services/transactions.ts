@@ -60,6 +60,39 @@ export async function listTransactions(
   return { transactions: data as unknown as TransactionWithRelations[], count: count ?? 0 }
 }
 
+/** All transactions in [startDateKey, endDateKeyExclusive), with category details for breakdown charts. */
+export async function listTransactionsForRange(
+  familyId: string,
+  startDateKey: string,
+  endDateKeyExclusive: string
+): Promise<TransactionWithRelations[]> {
+  const { data, error } = await supabase
+    .from('transactions')
+    .select(RELATIONS_SELECT)
+    .eq('family_id', familyId)
+    .eq('is_deleted', false)
+    .gte('transaction_date', startDateKey)
+    .lt('transaction_date', endDateKeyExclusive)
+    .order('transaction_date', { ascending: false })
+  if (error) throw error
+  return data as unknown as TransactionWithRelations[]
+}
+
+/** Minimal fields only — used to build multi-month trend charts, not for display. */
+export async function listTransactionAmountsSince(
+  familyId: string,
+  sinceDateKey: string
+): Promise<Pick<Transaction, 'type' | 'amount' | 'transaction_date' | 'category_id' | 'member_id'>[]> {
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('type, amount, transaction_date, category_id, member_id')
+    .eq('family_id', familyId)
+    .eq('is_deleted', false)
+    .gte('transaction_date', sinceDateKey)
+  if (error) throw error
+  return data as Pick<Transaction, 'type' | 'amount' | 'transaction_date' | 'category_id' | 'member_id'>[]
+}
+
 export async function getTransaction(id: string): Promise<TransactionWithRelations> {
   const { data, error } = await supabase.from('transactions').select(RELATIONS_SELECT).eq('id', id).single()
   if (error) throw error
