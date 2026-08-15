@@ -3,7 +3,6 @@ import { toast } from 'sonner'
 import { useState } from 'react'
 import { MonthSelector } from '@/components/dashboard/MonthSelector'
 import { StatCard } from '@/components/dashboard/StatCard'
-import { MonthComparison } from '@/components/dashboard/MonthComparison'
 import { QuickActions } from '@/components/dashboard/QuickActions'
 import { TrendChart } from '@/components/dashboard/TrendChart'
 import { CategoryBreakdownChart } from '@/components/dashboard/CategoryBreakdownChart'
@@ -19,9 +18,9 @@ import { useMonthTransactions, useAllTimeSavingsTransactions } from '@/hooks/use
 import { useDeleteTransaction, useDuplicateTransaction } from '@/hooks/useTransactions'
 import { useSavingsGoals } from '@/hooks/useGoals'
 import { useBudgets } from '@/hooks/useBudgets'
-import { computeCategoryTotals, computeSummary, compareSummaries } from '@/lib/calculations'
+import { computeCategoryTotals, computeSummary } from '@/lib/calculations'
 import { addMonths, currentMonthKey, formatMonthLabel } from '@/lib/dates'
-import { formatCurrency, formatPercent } from '@/lib/formatters'
+import { formatCurrency } from '@/lib/formatters'
 import { toFriendlyMessage } from '@/lib/errors'
 import { computeInsights } from '@/lib/insights'
 import type { TransactionWithRelations } from '@/types'
@@ -47,8 +46,6 @@ export default function Dashboard() {
   }
 
   const summary = computeSummary(transactions)
-  const previousSummary = computeSummary(previousTransactions)
-  const comparison = compareSummaries(summary, previousSummary)
   const totalSavings = allTimeSavingsTransactions.reduce((sum, t) => sum + Number(t.amount), 0)
 
   const expenseCategoryTotals = computeCategoryTotals(transactions.filter((t) => t.type === 'expense'))
@@ -131,25 +128,9 @@ export default function Dashboard() {
 
       <MonthSelector monthKey={monthKey} onChange={setMonthKey} />
 
-      <div className="grid grid-cols-2 gap-3">
-        <StatCard label="Income" value={formatCurrency(summary.income)} tone="income" />
-        <StatCard label="Expenses" value={formatCurrency(summary.expense)} tone="expense" />
-        <StatCard label="Savings" value={formatCurrency(summary.savings)} />
-        <StatCard label="Savings Rate" value={formatPercent(summary.savingsRate)} />
-      </div>
-
       <QuickActions />
 
       {!isLoading && transactions.length > 0 && <InsightsCard insights={insights} />}
-
-      {!isLoading && transactions.length > 0 && (
-        <MonthComparison
-          previousMonthKey={previousMonthKey}
-          income={comparison.income}
-          expense={comparison.expense}
-          savings={comparison.savings}
-        />
-      )}
 
       <TrendChart monthKey={monthKey} />
       <SavingsByCategoryChart
