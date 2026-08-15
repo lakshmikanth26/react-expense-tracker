@@ -68,14 +68,23 @@ function parseDate(raw: string): string | null {
   m = token.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/)
   if (m) return toDateKey(new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1])))
 
-  m = token.match(/^(\d{1,2})\s+([a-z]{3,})\s*(\d{4})?$/)
+  // "01 july 26", "01-july-26", "1 Jul 2026" — day and month/year may be separated by
+  // a space or a dash, and the year may be 2 or 4 digits.
+  m = token.match(/^(\d{1,2})[\s-]+([a-z]{3,})[\s-]*(\d{2,4})?$/)
   if (m) {
     const month = MONTHS[m[2].slice(0, 3)]
     if (month === undefined) return null
-    return toDateKey(new Date(m[3] ? Number(m[3]) : today.getFullYear(), month, Number(m[1])))
+    let year = m[3] ? Number(m[3]) : today.getFullYear()
+    if (m[3] && m[3].length <= 2) year += 2000
+    return toDateKey(new Date(year, month, Number(m[1])))
   }
 
   return null
+}
+
+/** Splits on " - " or a comma (either works as a field separator, and they can be mixed freely). */
+function splitFields(text: string): string[] {
+  return text.split(/\s*,\s*|\s+-\s+/).map((p) => p.trim()).filter(Boolean)
 }
 
 function toDateKey(date: Date): string {
@@ -172,9 +181,9 @@ async function handleLink(chatId: number, code: string) {
     chatId,
     `You're linked, ${member?.name ?? 'there'}! Send messages like:\n\n` +
       '`Expense - 500 - Food - today`\n`Income - 50000 - Salary`\n`Savings - 5000 - Emergency Fund - my goal`\n\n' +
-      'Format: *Type - Amount - Category - [Member] - [Date] - [Goal]* — anything after Category is optional and ' +
-      'order-independent (I figure out which bit is a date, a member, or a goal). For savings, if a goal shares ' +
-      "the category's name I'll link it automatically.",
+      'Format: *Type - Amount - Category - [Member] - [Date] - [Goal]* — separate fields with " - " or a comma, ' +
+      'anything after Category is optional and order-independent (I figure out which bit is a date, a member, or ' +
+      "a goal). For savings, if a goal shares the category's name I'll link it automatically.",
   )
 }
 
@@ -223,8 +232,10 @@ async function sendHelp(chatId: number) {
       '`/income <amount> - <category> - [member] - [date]`\n' +
       '`/savings <amount> - <category> - [member] - [date] - [goal]`\n' +
       '`/link <code>` — connect this Telegram account to a family member\n\n' +
-      'Anything after amount + category is optional and order-independent — I figure out which bit is a date, ' +
-      'a member, or a goal. You can also skip the command and just type e.g. `Expense - 500 - Food - today`.\n\n' +
+      'Separate fields with " - " or a comma — mix freely. Anything after amount + category is optional and ' +
+      'order-independent — I figure out which bit is a date, a member, or a goal. Dates can be `today`, ' +
+      '`yesterday`, `2026-07-01`, `01/07/2026`, or `01-jul-26`. You can also skip the command and just type ' +
+      'e.g. `Expense - 500 - Food - today`.\n\n' +
       'Send a command with no details (e.g. just `/expense`) to see your own categories.',
   )
 }
@@ -327,7 +338,7 @@ async function recordTransaction(chatId: number, type: 'expense' | 'income' | 's
 
 /** No leading command — the original free-text form: `Expense - 500 - Food - today`. */
 async function handleFreeText(chatId: number, text: string) {
-  const parts = text.split(/\s+-\s+/).map((p) => p.trim()).filter(Boolean)
+  const parts = splitFields(text)
   if (parts.length < 3) {
     await sendMessage(
       chatId,
@@ -381,7 +392,7 @@ Deno.serve(async (req) => {
         if (!rest) {
           await sendCommandHelp(chatId, type)
         } else {
-          const parts = rest.split(/\s+-\s+/).map((p) => p.trim()).filter(Boolean)
+          const parts = splitFields(rest)
           await recordTransaction(chatId, type, parts, text)
         }
       } else {
