@@ -79,7 +79,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-5">
-      <Accordion type="multiple" defaultValue={['savings', 'goals']} className="space-y-3">
+      <Accordion type="multiple" defaultValue={[]} className="space-y-3">
         <AccordionItem value="savings">
           <AccordionTrigger>Total Savings</AccordionTrigger>
           <AccordionContent className="space-y-4">
