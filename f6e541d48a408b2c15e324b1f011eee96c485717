@@ -1,0 +1,43 @@
+src/lib/calculations.ts
+  6d026e634ccd3706 2,18-21,179-210
+src/components/dashboard/QuickActions.tsx
+  6d026e634ccd3706 1-24
+src/services/transactions.ts
+  6d026e634ccd3706 63-95
+src/hooks/useDashboard.ts
+  6d026e634ccd3706 1-31
+src/components/dashboard/MonthSelector.tsx
+  6d026e634ccd3706 1-43
+src/components/dashboard/StatCard.tsx
+  6d026e634ccd3706 1-28
+src/components/dashboard/MonthComparison.tsx
+  6d026e634ccd3706 1-40
+src/pages/Dashboard.tsx
+  6d026e634ccd3706 1-19,21-68,70-147
+src/components/dashboard/TrendChart.tsx
+  6d026e634ccd3706 17
+src/components/dashboard/ChartCard.tsx
+  6d026e634ccd3706 1-31
+src/components/dashboard/CategoryBreakdownChart.tsx
+  6d026e634ccd3706 1-69
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.23",
+  "base_commit_sha": "f6e541d48a408b2c15e324b1f011eee96c485717",
+  "prompts": {
+    "6d026e634ccd3706": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "399b09e2-245b-41ea-892b-0f829169fa1c",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Lakshmikanth <lakshmikanth.d@gdn-commerce.com>",
+      "messages": [],
+      "total_additions": 552,
+      "total_deletions": 16,
+      "accepted_lines": 544,
+      "overriden_lines": 0
+    }
+  }
+}
