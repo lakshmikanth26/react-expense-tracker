@@ -1,0 +1,49 @@
+src/types/database.ts
+  6d026e634ccd3706 43-44,49-56
+src/hooks/useTelegram.ts
+  6d026e634ccd3706 1-10
+src/components/settings/TelegramLinkDialog.tsx
+  6d026e634ccd3706 1-90
+src/pages/Settings.tsx
+  6d026e634ccd3706 11,32,114-124,314-322,522-527
+supabase/functions/telegram-webhook/index.ts
+  6d026e634ccd3706 1-287
+src/services/family.ts
+  6d026e634ccd3706 56
+supabase/functions/telegram-webhook/register-webhook.sh
+  6d026e634ccd3706 1-18
+.env.example
+  6d026e634ccd3706 6-9
+prisma/migrations/20260101000006_telegram_linking/migration.sql
+  6d026e634ccd3706 1-4,6-7,9-57
+src/hooks/useMembers.ts
+  6d026e634ccd3706 48-54
+src/services/telegram.ts
+  6d026e634ccd3706 1-30
+prisma/schema.prisma
+  6d026e634ccd3706 86,92-100,102-106,290-307
+.github/workflows/deploy.yml
+  6d026e634ccd3706 37
+.gitignore
+  6d026e634ccd3706 34-36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.23",
+  "base_commit_sha": "8a557543c44d2e62ff46e4a9a3403d1a5e8f8399",
+  "prompts": {
+    "6d026e634ccd3706": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "399b09e2-245b-41ea-892b-0f829169fa1c",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Lakshmikanth <lakshmikanth.d@gdn-commerce.com>",
+      "messages": [],
+      "total_additions": 579,
+      "total_deletions": 17,
+      "accepted_lines": 579,
+      "overriden_lines": 0
+    }
+  }
+}
