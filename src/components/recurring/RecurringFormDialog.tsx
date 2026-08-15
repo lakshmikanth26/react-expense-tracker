@@ -15,9 +15,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CategorySelector } from '@/components/transactions/CategorySelector'
 import { AccountSelector } from '@/components/transactions/AccountSelector'
 import { MemberSelector } from '@/components/transactions/MemberSelector'
+import { GoalSelector } from '@/components/transactions/GoalSelector'
 import { useCategories } from '@/hooks/useCategories'
 import { useAccounts } from '@/hooks/useAccounts'
 import { useMembers } from '@/hooks/useMembers'
+import { useSavingsGoals } from '@/hooks/useGoals'
 import { todayKey } from '@/lib/dates'
 import type { RecurringFrequency, RecurringTransaction, TransactionType } from '@/types'
 
@@ -29,6 +31,7 @@ export interface RecurringFormValues {
   accountId: string | null
   transferToAccountId: string | null
   memberId: string | null
+  goalId: string | null
   frequency: RecurringFrequency
   interval: string
   startDate: string
@@ -53,6 +56,7 @@ function toFormValues(r?: RecurringTransaction | null): RecurringFormValues {
       accountId: null,
       transferToAccountId: null,
       memberId: null,
+      goalId: null,
       frequency: 'monthly',
       interval: '1',
       startDate: todayKey(),
@@ -67,6 +71,7 @@ function toFormValues(r?: RecurringTransaction | null): RecurringFormValues {
     accountId: r.account_id,
     transferToAccountId: r.transfer_to_account_id,
     memberId: r.member_id,
+    goalId: r.goal_id,
     frequency: r.frequency,
     interval: String(r.interval),
     startDate: r.start_date,
@@ -85,6 +90,7 @@ export function RecurringFormDialog({ trigger, editing, open, onOpenChange, onSa
   const { categories } = useCategories(values.type === 'transfer' ? undefined : values.type)
   const { accounts } = useAccounts()
   const { members } = useMembers()
+  const { goals } = useSavingsGoals()
 
   function set<K extends keyof RecurringFormValues>(key: K, val: RecurringFormValues[K]) {
     setValues((v) => ({ ...v, [key]: val }))
@@ -177,6 +183,13 @@ export function RecurringFormDialog({ trigger, editing, open, onOpenChange, onSa
             <Label>Member</Label>
             <MemberSelector members={members} value={values.memberId} onChange={(v) => set('memberId', v)} />
           </div>
+
+          {values.type === 'savings' && (
+            <div className="space-y-1.5">
+              <Label>Goal</Label>
+              <GoalSelector goals={goals} value={values.goalId} onChange={(v) => set('goalId', v)} />
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">

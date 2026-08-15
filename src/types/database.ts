@@ -122,6 +122,7 @@ export interface RecurringTransaction {
   category_id: string | null
   account_id: string | null
   transfer_to_account_id: string | null
+  goal_id: string | null
   type: TransactionType
   amount: string
   description: string | null
