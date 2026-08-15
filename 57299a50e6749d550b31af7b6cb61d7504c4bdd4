@@ -1,0 +1,31 @@
+src/pages/Recurring.tsx
+  6d026e634ccd3706 38
+src/pages/AddTransaction.tsx
+  6d026e634ccd3706 115,188
+src/components/transactions/GoalSelector.tsx
+  6d026e634ccd3706 12,33
+src/components/recurring/RecurringFormDialog.tsx
+  6d026e634ccd3706 186
+prisma/migrations/20260101000010_goal_link_expense_type/migration.sql
+  6d026e634ccd3706 1-41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.23",
+  "base_commit_sha": "57299a50e6749d550b31af7b6cb61d7504c4bdd4",
+  "prompts": {
+    "6d026e634ccd3706": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "399b09e2-245b-41ea-892b-0f829169fa1c",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Lakshmikanth <lakshmikanth.d@gdn-commerce.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 47,
+      "overriden_lines": 0
+    }
+  }
+}
