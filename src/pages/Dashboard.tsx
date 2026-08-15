@@ -8,13 +8,16 @@ import { QuickActions } from '@/components/dashboard/QuickActions'
 import { TrendChart } from '@/components/dashboard/TrendChart'
 import { CategoryBreakdownChart } from '@/components/dashboard/CategoryBreakdownChart'
 import { TransactionList } from '@/components/transactions/TransactionList'
+import { InsightsCard } from '@/components/dashboard/InsightsCard'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { useMonthTransactions } from '@/hooks/useDashboard'
 import { useDeleteTransaction, useDuplicateTransaction } from '@/hooks/useTransactions'
+import { useBudgets } from '@/hooks/useBudgets'
 import { computeCategoryTotals, computeSummary, compareSummaries } from '@/lib/calculations'
 import { addMonths, currentMonthKey, formatMonthLabel } from '@/lib/dates'
 import { formatCurrency, formatPercent } from '@/lib/formatters'
 import { toFriendlyMessage } from '@/lib/errors'
+import { computeInsights } from '@/lib/insights'
 import type { TransactionWithRelations } from '@/types'
 
 export default function Dashboard() {
@@ -25,6 +28,7 @@ export default function Dashboard() {
 
   const { transactions, isLoading } = useMonthTransactions(monthKey)
   const { transactions: previousTransactions } = useMonthTransactions(previousMonthKey)
+  const { budgets } = useBudgets(monthKey)
 
   const duplicateMutation = useDuplicateTransaction()
   const deleteMutation = useDeleteTransaction()
@@ -44,6 +48,7 @@ export default function Dashboard() {
   const largestExpense = [...transactions].filter((t) => t.type === 'expense').sort((a, b) => Number(b.amount) - Number(a.amount))[0]
 
   const recentInMonth = transactions.slice(0, 5)
+  const insights = computeInsights({ transactions, previousTransactions, budgets })
 
   async function handleDuplicate(t: TransactionWithRelations) {
     try {
@@ -78,6 +83,8 @@ export default function Dashboard() {
       </div>
 
       <QuickActions />
+
+      {!isLoading && transactions.length > 0 && <InsightsCard insights={insights} />}
 
       {!isLoading && transactions.length > 0 && (
         <MonthComparison

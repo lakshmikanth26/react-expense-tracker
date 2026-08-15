@@ -99,6 +99,17 @@ export async function listTransactions(
   return { transactions: data as unknown as TransactionWithRelations[], count: count ?? 0 }
 }
 
+const CSV_EXPORT_CAP = 5000
+
+/** Used for CSV export — everything matching the filters, up to a sane cap rather than true unbounded pagination. */
+export async function listAllTransactions(familyId: string, filters: TransactionFilters = {}): Promise<TransactionWithRelations[]> {
+  let query = supabase.from('transactions').select(RELATIONS_SELECT).eq('family_id', familyId).eq('is_deleted', false)
+  query = applyFilters(query, filters)
+  const { data, error } = await query.order('transaction_date', { ascending: false }).limit(CSV_EXPORT_CAP)
+  if (error) throw error
+  return data as unknown as TransactionWithRelations[]
+}
+
 /** All transactions in [startDateKey, endDateKeyExclusive), with category details for breakdown charts. */
 export async function listTransactionsForRange(
   familyId: string,

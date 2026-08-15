@@ -65,3 +65,9 @@ export async function updateFamily(id: string, updates: Partial<Pick<Family, 'na
   if (error) throw error
   return data as Family
 }
+
+/** Permanently deletes the family and everything that belongs to it (see delete_my_family RPC). */
+export async function deleteMyFamily(familyId: string): Promise<void> {
+  const { error } = await supabase.rpc('delete_my_family', { p_family_id: familyId })
+  if (error) throw error
+}
