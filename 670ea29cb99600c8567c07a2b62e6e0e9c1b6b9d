@@ -1,0 +1,25 @@
+prisma/migrations/20260101000009_recurring_goal_link/migration.sql
+  6d026e634ccd3706 1-16
+prisma/schema.prisma
+  6d026e634ccd3706 220,240,245,278-280
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.23",
+  "base_commit_sha": "670ea29cb99600c8567c07a2b62e6e0e9c1b6b9d",
+  "prompts": {
+    "6d026e634ccd3706": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "399b09e2-245b-41ea-892b-0f829169fa1c",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Lakshmikanth <lakshmikanth.d@gdn-commerce.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 22,
+      "overriden_lines": 0
+    }
+  }
+}
