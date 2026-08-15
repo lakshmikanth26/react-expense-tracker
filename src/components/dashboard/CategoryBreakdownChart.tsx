@@ -15,7 +15,12 @@ const PALETTE = [
   'oklch(0.55 0.02 260)',
 ]
 
-export function CategoryBreakdownChart({ transactions }: { transactions: TransactionWithRelations[] }) {
+interface CategoryBreakdownChartProps {
+  transactions: TransactionWithRelations[]
+  onCategoryClick?: (categoryId: string | null) => void
+}
+
+export function CategoryBreakdownChart({ transactions, onCategoryClick }: CategoryBreakdownChartProps) {
   const expenses = transactions.filter((t) => t.type === 'expense')
   const totals = computeCategoryTotals(expenses)
   const categoryById = new Map<string, Pick<Category, 'id' | 'name' | 'icon'>>()
@@ -41,7 +46,16 @@ export function CategoryBreakdownChart({ transactions }: { transactions: Transac
       <div className="flex flex-col items-center gap-4 sm:flex-row">
         <ResponsiveContainer width="100%" height={200} className="max-w-[200px]">
           <PieChart>
-            <Pie data={data} dataKey="amount" nameKey="name" innerRadius={55} outerRadius={85} paddingAngle={2}>
+            <Pie
+              data={data}
+              dataKey="amount"
+              nameKey="name"
+              innerRadius={55}
+              outerRadius={85}
+              paddingAngle={2}
+              onClick={onCategoryClick ? (entry: unknown) => onCategoryClick((entry as { categoryId: string | null }).categoryId) : undefined}
+              cursor={onCategoryClick ? 'pointer' : undefined}
+            >
               {data.map((entry) => (
                 <Cell key={entry.categoryId ?? 'uncategorized'} fill={entry.color} stroke="none" />
               ))}
@@ -52,7 +66,13 @@ export function CategoryBreakdownChart({ transactions }: { transactions: Transac
 
         <div className="w-full flex-1 space-y-1.5">
           {data.slice(0, 6).map((entry) => (
-            <div key={entry.categoryId ?? 'uncategorized'} className="flex items-center justify-between text-sm">
+            <button
+              key={entry.categoryId ?? 'uncategorized'}
+              type="button"
+              onClick={() => onCategoryClick?.(entry.categoryId)}
+              disabled={!onCategoryClick}
+              className="flex w-full items-center justify-between rounded text-sm disabled:cursor-default"
+            >
               <span className="flex min-w-0 items-center gap-2">
                 <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: entry.color }} />
                 <span className="truncate">
@@ -60,7 +80,7 @@ export function CategoryBreakdownChart({ transactions }: { transactions: Transac
                 </span>
               </span>
               <span className="shrink-0 tabular-nums text-muted-foreground">{formatPercent(entry.percentage)}</span>
-            </div>
+            </button>
           ))}
         </div>
       </div>

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   computeBudgetUsage,
   computeCategoryTotals,
+  computeMonthlySeries,
   computeSummary,
   fromPaise,
   summarizeAccountBalances,
@@ -54,6 +55,23 @@ describe('computeBudgetUsage', () => {
     expect(computeBudgetUsage(12000, 10000).status).toBe('over')
     expect(computeBudgetUsage(8500, 10000).status).toBe('warning')
     expect(computeBudgetUsage(5000, 10000).status).toBe('ok')
+  })
+})
+
+describe('computeMonthlySeries', () => {
+  it('fills in months with no transactions as zero, in chronological order', () => {
+    const series = computeMonthlySeries(
+      [
+        { type: 'income', amount: '1000', transaction_date: '2026-06-15' },
+        { type: 'expense', amount: '400', transaction_date: '2026-08-01' },
+      ],
+      '2026-06-01',
+      '2026-08-01'
+    )
+    expect(series.map((p) => p.month)).toEqual(['2026-06-01', '2026-07-01', '2026-08-01'])
+    expect(series[0]).toMatchObject({ income: 1000, expense: 0, savings: 1000 })
+    expect(series[1]).toMatchObject({ income: 0, expense: 0, savings: 0 })
+    expect(series[2]).toMatchObject({ income: 0, expense: 400, savings: -400 })
   })
 })
 

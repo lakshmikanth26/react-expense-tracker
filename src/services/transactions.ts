@@ -38,21 +38,60 @@ export async function listRecentTransactions(familyId: string, limit = 5): Promi
   return data as unknown as TransactionWithRelations[]
 }
 
+export interface TransactionFilters {
+  startDate?: string
+  endDateExclusive?: string
+  /** Pass the selected category plus all of its subcategory ids to include the whole group. */
+  categoryIds?: string[]
+  /** `null` explicitly means "Family" (transactions with no member assigned). */
+  memberId?: string | null
+  accountId?: string
+  type?: Transaction['type']
+  minAmount?: number
+  maxAmount?: number
+  /** Matches description, merchant, or notes (case-insensitive substring). */
+  search?: string
+}
+
 export interface ListTransactionsOptions {
   limit?: number
   offset?: number
 }
 
+function applyFilters<T>(query: T, filters: TransactionFilters): T {
+  // Supabase's PostgrestFilterBuilder methods all return `this`, so chaining through
+  // an opaque generic here is safe even though TS can't see the concrete builder type.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let q = query as any
+  if (filters.startDate) q = q.gte('transaction_date', filters.startDate)
+  if (filters.endDateExclusive) q = q.lt('transaction_date', filters.endDateExclusive)
+  if (filters.categoryIds?.length) q = q.in('category_id', filters.categoryIds)
+  if (filters.memberId === null) q = q.is('member_id', null)
+  else if (filters.memberId) q = q.eq('member_id', filters.memberId)
+  if (filters.accountId) q = q.eq('account_id', filters.accountId)
+  if (filters.type) q = q.eq('type', filters.type)
+  if (filters.minAmount != null) q = q.gte('amount', filters.minAmount)
+  if (filters.maxAmount != null) q = q.lte('amount', filters.maxAmount)
+  if (filters.search) {
+    const escaped = filters.search.replace(/[%,]/g, '')
+    q = q.or(`description.ilike.%${escaped}%,merchant.ilike.%${escaped}%,notes.ilike.%${escaped}%`)
+  }
+  return q as T
+}
+
 export async function listTransactions(
   familyId: string,
+  filters: TransactionFilters = {},
   options: ListTransactionsOptions = {}
 ): Promise<{ transactions: TransactionWithRelations[]; count: number }> {
   const { limit = 50, offset = 0 } = options
-  const { data, error, count } = await supabase
+  let query = supabase
     .from('transactions')
     .select(RELATIONS_SELECT, { count: 'exact' })
     .eq('family_id', familyId)
     .eq('is_deleted', false)
+  query = applyFilters(query, filters)
+  const { data, error, count } = await query
     .order('transaction_date', { ascending: false })
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1)

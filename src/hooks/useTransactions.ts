@@ -7,6 +7,7 @@ import {
   listRecentTransactions,
   listTransactions,
   updateTransaction,
+  type TransactionFilters,
   type TransactionInput,
 } from '@/services/transactions'
 import { queryKeys } from '@/lib/queryKeys'
@@ -22,11 +23,14 @@ export function useRecentTransactions(limit = 5) {
   return { transactions: query.data ?? [], isLoading: query.isLoading, error: query.error }
 }
 
-export function useTransactionsList(options: { limit?: number; offset?: number } = {}) {
+export function useTransactionsList(
+  filters: TransactionFilters = {},
+  options: { limit?: number; offset?: number } = {}
+) {
   const { family } = useFamily()
   const query = useQuery({
-    queryKey: queryKeys.transactionsList(family?.id, options),
-    queryFn: () => listTransactions(family!.id, options),
+    queryKey: queryKeys.transactionsList(family?.id, { filters, options }),
+    queryFn: () => listTransactions(family!.id, filters, options),
     enabled: !!family,
   })
   return {

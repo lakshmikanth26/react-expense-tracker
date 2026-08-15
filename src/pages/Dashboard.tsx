@@ -89,7 +89,10 @@ export default function Dashboard() {
       )}
 
       <TrendChart monthKey={monthKey} />
-      <CategoryBreakdownChart transactions={transactions} />
+      <CategoryBreakdownChart
+        transactions={transactions}
+        onCategoryClick={(categoryId) => navigate(categoryId ? `/transactions?category=${categoryId}` : '/transactions')}
+      />
 
       {!isLoading && transactions.length > 0 && (
         <div className="rounded-xl border p-4">
