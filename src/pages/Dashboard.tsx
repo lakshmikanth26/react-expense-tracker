@@ -7,6 +7,7 @@ import { MonthComparison } from '@/components/dashboard/MonthComparison'
 import { QuickActions } from '@/components/dashboard/QuickActions'
 import { TrendChart } from '@/components/dashboard/TrendChart'
 import { CategoryBreakdownChart } from '@/components/dashboard/CategoryBreakdownChart'
+import { SavingsByCategoryChart } from '@/components/dashboard/SavingsByCategoryChart'
 import { TransactionList } from '@/components/transactions/TransactionList'
 import { InsightsCard } from '@/components/dashboard/InsightsCard'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
@@ -86,9 +87,8 @@ export default function Dashboard() {
           <AccordionTrigger>Total Savings</AccordionTrigger>
           <AccordionContent className="space-y-4">
             <StatCard label="Total Savings" value={formatCurrency(totalSavings)} />
-            <CategoryBreakdownChart
+            <SavingsByCategoryChart
               transactions={allTimeSavingsTransactions}
-              type="savings"
               onCategoryClick={(categoryId) => navigate(categoryId ? `/transactions?category=${categoryId}` : '/transactions')}
             />
           </AccordionContent>
@@ -152,14 +152,12 @@ export default function Dashboard() {
       )}
 
       <TrendChart monthKey={monthKey} />
-      <CategoryBreakdownChart
+      <SavingsByCategoryChart
         transactions={transactions}
-        type="savings"
         onCategoryClick={(categoryId) => navigate(categoryId ? `/transactions?category=${categoryId}` : '/transactions')}
       />
       <CategoryBreakdownChart
         transactions={transactions}
-        type="expense"
         onCategoryClick={(categoryId) => navigate(categoryId ? `/transactions?category=${categoryId}` : '/transactions')}
       />
 

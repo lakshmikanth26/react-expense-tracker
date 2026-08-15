@@ -17,13 +17,13 @@ const PALETTE = [
 
 interface CategoryBreakdownChartProps {
   transactions: TransactionWithRelations[]
-  /** Which transaction type this chart summarizes. Defaults to 'expense' (spending breakdown). */
-  type?: 'expense' | 'savings'
   onCategoryClick?: (categoryId: string | null) => void
 }
 
-export function CategoryBreakdownChart({ transactions, type = 'expense', onCategoryClick }: CategoryBreakdownChartProps) {
-  const filtered = transactions.filter((t) => t.type === type)
+/** Spending-by-category donut. (Savings uses SavingsByCategoryChart instead — a pie/donut
+ *  reads poorly with only a couple of categories, which is the common case for savings.) */
+export function CategoryBreakdownChart({ transactions, onCategoryClick }: CategoryBreakdownChartProps) {
+  const filtered = transactions.filter((t) => t.type === 'expense')
   const totals = computeCategoryTotals(filtered)
   const categoryById = new Map<string, Pick<Category, 'id' | 'name' | 'icon'>>()
   for (const t of filtered) {
@@ -41,13 +41,9 @@ export function CategoryBreakdownChart({ transactions, type = 'expense', onCateg
 
   return (
     <ChartCard
-      title={type === 'savings' ? 'Savings by Category' : 'Spending by Category'}
+      title="Spending by Category"
       isEmpty={data.length === 0}
-      emptyMessage={
-        type === 'savings'
-          ? 'Add a savings entry to see where your money is going.'
-          : 'Add a few expenses to see your spending breakdown.'
-      }
+      emptyMessage="Add a few expenses to see your spending breakdown."
     >
       <div className="flex flex-col items-center gap-4 sm:flex-row">
         <ResponsiveContainer width="100%" height={200} className="max-w-[200px]">

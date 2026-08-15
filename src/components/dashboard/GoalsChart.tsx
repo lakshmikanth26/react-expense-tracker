@@ -1,60 +1,58 @@
-import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import { formatCurrency, formatPercent } from '@/lib/formatters'
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
+import { formatCurrency } from '@/lib/formatters'
 import type { SavingsGoal } from '@/types'
+
+const SAVED_COLOR = 'var(--color-savings)'
+const REMAINING_COLOR = 'var(--muted)'
+const COMPLETE_COLOR = 'var(--color-income)'
 
 interface GoalsChartProps {
   goals: SavingsGoal[]
 }
 
-interface GoalsChartTooltipPayload {
-  fullName: string
-  current: number
-  target: number
-  percentage: number
-}
+function GoalDonut({ goal }: { goal: SavingsGoal }) {
+  const target = Number(goal.target_amount)
+  const current = Number(goal.current_amount)
+  const complete = target > 0 && current >= target
+  const saved = target > 0 ? Math.min(current, target) : current
+  const remaining = Math.max(target - current, 0)
+  const data = target > 0 ? [{ name: 'saved', value: saved }, { name: 'remaining', value: remaining }] : [{ name: 'saved', value: 1 }]
 
-function GoalsTooltip({ active, payload }: { active?: boolean; payload?: { payload: GoalsChartTooltipPayload }[] }) {
-  if (!active || !payload?.length) return null
-  const point = payload[0].payload
   return (
-    <div className="rounded-lg border bg-popover p-2.5 text-xs text-popover-foreground shadow-md">
-      <p className="mb-1 font-medium">{point.fullName}</p>
-      <p>
-        {formatCurrency(point.current)} of {formatCurrency(point.target)} ({formatPercent(point.percentage, 0)})
-      </p>
+    <div className="flex flex-col items-center gap-1.5">
+      <div className="relative size-[104px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie data={data} dataKey="value" innerRadius={34} outerRadius={48} startAngle={90} endAngle={-270} stroke="none">
+              <Cell fill={complete ? COMPLETE_COLOR : SAVED_COLOR} />
+              {target > 0 && <Cell fill={REMAINING_COLOR} />}
+            </Pie>
+            <Tooltip
+              formatter={(value) => formatCurrency(Number(value), undefined, { showDecimals: true })}
+              wrapperStyle={{ zIndex: 20 }}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+          <span className="text-sm leading-tight font-semibold tabular-nums">{formatCurrency(current)}</span>
+          {target > 0 && <span className="text-[10px] leading-tight text-muted-foreground">of {formatCurrency(target)}</span>}
+        </div>
+      </div>
+      <span className="flex max-w-[104px] items-center gap-1 truncate text-xs font-medium">
+        <span className="leading-none">{goal.icon ?? '🎯'}</span>
+        <span className="truncate">{goal.name}</span>
+      </span>
     </div>
   )
 }
 
-/** Horizontal bars showing % complete per goal — a compact, at-a-glance chart for the Home page. */
+/** One donut per goal, showing exact saved/target amounts rather than a percentage. */
 export function GoalsChart({ goals }: GoalsChartProps) {
-  const data = goals.map((goal) => {
-    const target = Number(goal.target_amount)
-    const current = Number(goal.current_amount)
-    const percentage = target > 0 ? Math.min((current / target) * 100, 100) : 0
-    const label = goal.name.length > 14 ? `${goal.name.slice(0, 13)}…` : goal.name
-    return {
-      name: `${goal.icon ?? '🎯'} ${label}`,
-      fullName: goal.name,
-      percentage,
-      current,
-      target,
-    }
-  })
-
   return (
-    <ResponsiveContainer width="100%" height={Math.max(data.length * 44, 80)}>
-      <BarChart data={data} layout="vertical" margin={{ left: 8, right: 24, top: 4, bottom: 4 }}>
-        <CartesianGrid horizontal={false} strokeDasharray="3 3" opacity={0.3} />
-        <XAxis type="number" domain={[0, 100]} tickFormatter={(v) => `${v}%`} tick={{ fontSize: 11 }} />
-        <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 12 }} />
-        <Tooltip content={<GoalsTooltip />} cursor={{ fill: 'currentColor', opacity: 0.05 }} />
-        <Bar dataKey="percentage" radius={[0, 6, 6, 0]} barSize={18}>
-          {data.map((entry) => (
-            <Cell key={entry.fullName} fill={entry.percentage >= 100 ? 'var(--color-income)' : 'var(--color-savings)'} />
-          ))}
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
+    <div className="grid grid-cols-2 gap-x-2 gap-y-4 sm:grid-cols-3">
+      {goals.map((goal) => (
+        <GoalDonut key={goal.id} goal={goal} />
+      ))}
+    </div>
   )
 }
