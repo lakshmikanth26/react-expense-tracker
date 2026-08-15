@@ -1,0 +1,27 @@
+src/pages/auth/Login.tsx
+  6d026e634ccd3706 9,15,19,40,44,48,51,75-82,88-89,142-143,145,147-150,153-154,159,161
+src/components/auth/OAuthButtons.tsx
+  6d026e634ccd3706 1-45
+src/hooks/useAuth.tsx
+  6d026e634ccd3706 6-7,14-16,56-57,60-61,64-68
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.23",
+  "base_commit_sha": "624308e3d9c5b68e46fb6c4aeb49561ce6e4d97d",
+  "prompts": {
+    "6d026e634ccd3706": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "399b09e2-245b-41ea-892b-0f829169fa1c",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Lakshmikanth <lakshmikanth.d@gdn-commerce.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 87,
+      "overriden_lines": 0
+    }
+  }
+}
