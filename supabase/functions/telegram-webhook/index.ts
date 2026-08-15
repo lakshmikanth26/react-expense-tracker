@@ -1,10 +1,12 @@
 // Supabase Edge Function: receives Telegram Bot API webhook updates and lets
 // linked family members add transactions by chatting, e.g.:
-//   Expense - 20K - Food - LK - today
+//   /expense 20K - Food - LK - today
+// or the free-text form without a command: Expense - 20K - Food - LK - today
 //
 // Deploy: supabase functions deploy telegram-webhook
 // Secrets: supabase secrets set TELEGRAM_BOT_TOKEN=... TELEGRAM_WEBHOOK_SECRET=...
-// Register: see supabase/functions/telegram-webhook/register-webhook.sh
+// Register webhook: see supabase/functions/telegram-webhook/register-webhook.sh
+// Register the /-menu commands: see supabase/functions/telegram-webhook/register-commands.sh
 //
 // SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are injected automatically by the
 // Edge Functions runtime — never set those as function secrets yourself.
@@ -176,37 +178,76 @@ async function handleLink(chatId: number, code: string) {
   )
 }
 
-async function handleTransactionText(chatId: number, text: string) {
+async function getLinkedMember(chatId: number): Promise<{ id: string; family_id: string; name: string } | null> {
   const { data: member } = await supabase
     .from('family_members')
     .select('id, family_id, name')
     .eq('telegram_chat_id', chatId)
     .maybeSingle()
+  return member
+}
 
+const NOT_LINKED_MESSAGE =
+  "You haven't linked this Telegram account yet. Generate a code from Settings → Members in the app, then send `/link <code>`."
+
+/** `/expense`, `/income`, or `/savings` with no arguments — a quick-reference tailored to this family's own categories. */
+async function sendCommandHelp(chatId: number, type: 'expense' | 'income' | 'savings') {
+  const member = await getLinkedMember(chatId)
   if (!member) {
-    await sendMessage(chatId, "You haven't linked this Telegram account yet. Generate a code from Settings → Members in the app, then send `/link <code>`.")
+    await sendMessage(chatId, NOT_LINKED_MESSAGE)
+    return
+  }
+  const { data: categories } = await supabase
+    .from('categories')
+    .select('name')
+    .eq('family_id', member.family_id)
+    .eq('type', type)
+    .eq('is_active', true)
+  const exampleCategory = categories?.[0]?.name ?? 'Food'
+  const names = (categories ?? []).map((c) => c.name).join(', ') || '(none yet — add one in Settings)'
+
+  const optionalParts = type === 'savings' ? '`[Member]`, `[Date]`, `[Goal]`' : '`[Member]`, `[Date]`'
+  await sendMessage(
+    chatId,
+    `*/${type} <amount> - <category> - ${optionalParts}*\n\n` +
+      `Example: \`/${type} 500 - ${exampleCategory}\`\n\n` +
+      `Your ${type} categories: ${names}`,
+  )
+}
+
+async function sendHelp(chatId: number) {
+  await sendMessage(
+    chatId,
+    '*Commands*\n' +
+      '`/expense <amount> - <category> - [member] - [date]`\n' +
+      '`/income <amount> - <category> - [member] - [date]`\n' +
+      '`/savings <amount> - <category> - [member] - [date] - [goal]`\n' +
+      '`/link <code>` — connect this Telegram account to a family member\n\n' +
+      'Anything after amount + category is optional and order-independent — I figure out which bit is a date, ' +
+      'a member, or a goal. You can also skip the command and just type e.g. `Expense - 500 - Food - today`.\n\n' +
+      'Send a command with no details (e.g. just `/expense`) to see your own categories.',
+  )
+}
+
+async function recordTransaction(chatId: number, type: 'expense' | 'income' | 'savings', parts: string[], rawText: string) {
+  const member = await getLinkedMember(chatId)
+  if (!member) {
+    await sendMessage(chatId, NOT_LINKED_MESSAGE)
     return
   }
 
-  const parts = text.trim().split(/\s+-\s+/).map((p) => p.trim()).filter(Boolean)
-  if (parts.length < 3) {
-    await sendMessage(chatId, 'Please use the format: *Type - Amount - Category - [Member] - [Date] - [Goal]*\ne.g. `Expense - 500 - Food - today`')
+  if (parts.length < 2) {
+    await sendCommandHelp(chatId, type)
     return
   }
 
-  const type = TYPE_ALIASES[parts[0].toLowerCase()]
-  if (!type) {
-    await sendMessage(chatId, `I don't recognize "${parts[0]}" as a type. Use Expense, Income, or Savings.`)
-    return
-  }
-
-  const amount = parseAmount(parts[1])
+  const amount = parseAmount(parts[0])
   if (amount == null || amount <= 0) {
-    await sendMessage(chatId, `I couldn't read "${parts[1]}" as an amount. Try something like 500, 20k, or 1.5L.`)
+    await sendMessage(chatId, `I couldn't read "${parts[0]}" as an amount. Try something like 500, 20k, or 1.5L.`)
     return
   }
 
-  const categoryToken = parts[2]
+  const categoryToken = parts[1]
 
   const [{ data: categories }, { data: members }, { data: accounts }, { data: goals }] = await Promise.all([
     supabase.from('categories').select('id, name').eq('family_id', member.family_id).eq('type', type).eq('is_active', true),
@@ -227,11 +268,11 @@ async function handleTransactionText(chatId: number, text: string) {
   // Everything after Category is optional and order-independent: classify each
   // remaining token as the first slot it fits (date, then member, then goal) so
   // "Emergency Fund - 01 Aug 26 - Archana" and "Archana - 01 Aug 26" both work.
-  let taggedMember = member
+  let taggedMember: { id: string; name: string } = member
   let dateToken: string | undefined
   let goalMatch: GoalRow | null = null
   let memberMatched = false
-  for (const token of parts.slice(3)) {
+  for (const token of parts.slice(2)) {
     const asDate = !dateToken ? parseDate(token) : null
     const asMember = !memberMatched ? findMember(token, members ?? []) : null
     const asGoal = type === 'savings' && !goalMatch ? findGoal(token, goals ?? []) : null
@@ -268,7 +309,7 @@ async function handleTransactionText(chatId: number, text: string) {
     type,
     amount,
     transaction_date: transactionDate,
-    notes: `Added via Telegram: "${text.trim()}"`,
+    notes: `Added via Telegram: "${rawText.trim()}"`,
   })
 
   if (insertError) {
@@ -282,6 +323,25 @@ async function handleTransactionText(chatId: number, text: string) {
       (goalMatch ? ` → 🎯 ${goalMatch.name}` : '') +
       '.',
   )
+}
+
+/** No leading command — the original free-text form: `Expense - 500 - Food - today`. */
+async function handleFreeText(chatId: number, text: string) {
+  const parts = text.split(/\s+-\s+/).map((p) => p.trim()).filter(Boolean)
+  if (parts.length < 3) {
+    await sendMessage(
+      chatId,
+      'Please use the format: *Type - Amount - Category - [Member] - [Date] - [Goal]*\n' +
+        'e.g. `Expense - 500 - Food - today` — or try a command like `/expense` (send `/help` for the full list).',
+    )
+    return
+  }
+  const type = TYPE_ALIASES[parts[0].toLowerCase()]
+  if (!type) {
+    await sendMessage(chatId, `I don't recognize "${parts[0]}" as a type. Use Expense, Income, or Savings — or try /help.`)
+    return
+  }
+  await recordTransaction(chatId, type, parts.slice(1), text)
 }
 
 Deno.serve(async (req) => {
@@ -301,16 +361,34 @@ Deno.serve(async (req) => {
 
   const chatId = message.chat.id
   const text = message.text.trim()
+  // Strips an optional "@BotUsername" suffix Telegram appends to commands in group chats.
+  const commandMatch = text.match(/^\/(\w+)(?:@\w+)?\s*([\s\S]*)$/)
 
   try {
-    if (text === '/start') {
-      await sendMessage(chatId, "Welcome! Generate a link code from Settings → Members in the app, then send `/link <code>` here.")
-    } else if (text.startsWith('/start ')) {
-      await handleLink(chatId, text.slice('/start '.length))
-    } else if (text.startsWith('/link')) {
-      await handleLink(chatId, text.slice('/link'.length))
+    if (commandMatch) {
+      const command = commandMatch[1].toLowerCase()
+      const rest = commandMatch[2].trim()
+
+      if (command === 'start') {
+        if (rest) await handleLink(chatId, rest)
+        else await sendMessage(chatId, "Welcome! Generate a link code from Settings → Members in the app, then send `/link <code>` here — or `/help` to see what I can do.")
+      } else if (command === 'link') {
+        await handleLink(chatId, rest)
+      } else if (command === 'help') {
+        await sendHelp(chatId)
+      } else if (TYPE_ALIASES[command]) {
+        const type = TYPE_ALIASES[command]
+        if (!rest) {
+          await sendCommandHelp(chatId, type)
+        } else {
+          const parts = rest.split(/\s+-\s+/).map((p) => p.trim()).filter(Boolean)
+          await recordTransaction(chatId, type, parts, text)
+        }
+      } else {
+        await sendMessage(chatId, "I don't recognize that command. Send `/help` to see what I can do.")
+      }
     } else {
-      await handleTransactionText(chatId, text)
+      await handleFreeText(chatId, text)
     }
   } catch (error) {
     console.error('telegram-webhook error', error)
