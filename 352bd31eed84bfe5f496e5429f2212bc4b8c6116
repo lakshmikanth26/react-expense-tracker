@@ -1,0 +1,27 @@
+src/pages/Goals.tsx
+  6d026e634ccd3706 21,70-71
+src/pages/Recurring.tsx
+  6d026e634ccd3706 26,91-92
+src/pages/Budgets.tsx
+  6d026e634ccd3706 30,81-82
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.23",
+  "base_commit_sha": "352bd31eed84bfe5f496e5429f2212bc4b8c6116",
+  "prompts": {
+    "6d026e634ccd3706": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "399b09e2-245b-41ea-892b-0f829169fa1c",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Lakshmikanth <lakshmikanth.d@gdn-commerce.com>",
+      "messages": [],
+      "total_additions": 9,
+      "total_deletions": 0,
+      "accepted_lines": 9,
+      "overriden_lines": 0
+    }
+  }
+}
